@@ -9,3 +9,9 @@
 ### 引用与解引用
     my $book_ref = \%book;
     my %uref = %{$book_ref};
+
+###qq
+``` Perl
+    my $book_ref = \%book;
+    my %uref = %{$book_ref};
+```
