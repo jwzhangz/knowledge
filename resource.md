@@ -1,0 +1,5 @@
+[servlet3.1规范翻译：第8章 注解和可插拔性](http://blog.csdn.net/mhmyqn/article/details/8551797)  
+[SpringMVC4零配置--web.xml](http://hanqunfeng.iteye.com/blog/2114967)  
+[spring源码分析之spring-web web模块分析](http://www.cnblogs.com/davidwang456/p/4443942.html)  
+[Spring MVC全注解配置 - 无web.xml](http://sgyyz.blog.51cto.com/5069360/1575102)  
+[廖雪峰的官方网站](http://www.liaoxuefeng.com/)  
