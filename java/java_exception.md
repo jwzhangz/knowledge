@@ -40,7 +40,7 @@ public interface Consumer<T>{
     void accept(T t)
 }
 ```
-accept方法被声明为不抛出任何异常。 
+accept方法被声明为不抛出任何异常。  
 收藏文章：  
 [Java8（1）：当 Lambda 遇上受检异常](https://segmentfault.com/a/1190000007832130)
 
