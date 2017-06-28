@@ -5,3 +5,4 @@
 [廖雪峰的官方网站](http://www.liaoxuefeng.com/)  
 [深入理解HTTP协议](http://www.blogjava.net/zjusuyong/articles/304788.html)  
 [Java 并发编程](http://www.cnblogs.com/paddix/p/5374810.html)
+[如何优雅的找出ArrayList中的重复元素？](https://segmentfault.com/q/1010000008051168/a-1020000008052451)
