@@ -7,3 +7,5 @@ l markdown中的链接
 ctrl + backspace 删除光标到单词的首字母
 ctrl + m 找到匹配的括号  
 ctrl + shift + m markdown preview  
+
+## IDEA
