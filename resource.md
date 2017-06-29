@@ -7,3 +7,5 @@
 [Java 并发编程](http://www.cnblogs.com/paddix/p/5374810.html)
 [如何优雅的找出ArrayList中的重复元素？](https://segmentfault.com/q/1010000008051168/a-1020000008052451)  
 [使用Atom打造无懈可击的Markdown编辑器](http://www.cnblogs.com/libin-1/p/6638165.html)
+[十大Intellij IDEA快捷键](http://blog.csdn.net/dc_726/article/details/42784275)  
+[IntelliJ Idea 常用快捷键列表](http://www.cnblogs.com/zhangpengshou/p/5366413.html)  
