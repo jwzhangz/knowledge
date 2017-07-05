@@ -9,3 +9,6 @@ ctrl + m 找到匹配的括号
 ctrl + shift + m markdown preview  
 
 ## IDEA
+Ctrl+Shift+Space，自动补全代码  
+Ctrl+X，删除行  
+Ctrl+D，复制行  
