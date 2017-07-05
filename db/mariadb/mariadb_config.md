@@ -29,7 +29,7 @@ character-set-server=utf8
 输入 mysqld.exe --install MariaDB  
 等待成功后，输入 net start MariaDB 即可启动服务开始你的MariaDB之旅了。 
 如果需要停止该服务，输入 net stop MariaDB 即可停止服务  
-
+删除的时候也很简单，输入 mysqld.exe --remove MariaDB即可。
 ```
 D:\dev\mariadb-10.2.6-winx64\bin>mysqld.exe --install MariaDB
 Service successfully installed.
@@ -49,5 +49,119 @@ Confirm new password: ********
 MariaDB [(none)]> SHOW DATABASES;
 ```
 
+```
+MariaDB [(none)]> SHOW TABLES FROM mysql;
++---------------------------+
+| Tables_in_mysql           |
++---------------------------+
+| column_stats              |
+| columns_priv              |
+| db                        |
+| event                     |
+| func                      |
+| general_log               |
+| gtid_slave_pos            |
+| help_category             |
+| help_keyword              |
+| help_relation             |
+| help_topic                |
+| host                      |
+| index_stats               |
+| innodb_index_stats        |
+| innodb_table_stats        |
+| plugin                    |
+| proc                      |
+| procs_priv                |
+| proxies_priv              |
+| roles_mapping             |
+| servers                   |
+| slow_log                  |
+| table_stats               |
+| tables_priv               |
+| time_zone                 |
+| time_zone_leap_second     |
+| time_zone_name            |
+| time_zone_transition      |
+| time_zone_transition_type |
+| user                      |
++---------------------------+
+30 rows in set (0.03 sec)
+```
+进入数据库
+```
+MariaDB [(none)]> use mysql
+Database changed
+MariaDB [mysql]>
+```
+显示表
+```
+MariaDB [mysql]> show tables;
++---------------------------+
+| Tables_in_mysql           |
++---------------------------+
+| column_stats              |
+| columns_priv              |
+| db                        |
+| event                     |
+| func                      |
+| general_log               |
+| gtid_slave_pos            |
+| help_category             |
+| help_keyword              |
+| help_relation             |
+| help_topic                |
+| host                      |
+| index_stats               |
+| innodb_index_stats        |
+| innodb_table_stats        |
+| plugin                    |
+| proc                      |
+| procs_priv                |
+| proxies_priv              |
+| roles_mapping             |
+| servers                   |
+| slow_log                  |
+| table_stats               |
+| tables_priv               |
+| time_zone                 |
+| time_zone_leap_second     |
+| time_zone_name            |
+| time_zone_transition      |
+| time_zone_transition_type |
+| user                      |
++---------------------------+
+30 rows in set (0.00 sec)
+```
+显示user表的结构
+```
+MariaDB [mysql]> desc user;
+```
+刷新数据库
+```
+MariaDB [mysql]> flush privileges;
+Query OK, 0 rows affected (0.13 sec)
+```
+查询user表中的host，user，password字段
+```
+MariaDB [mysql]> select host,user,password from user;
++-----------+------+-------------------------------------------+
+| host      | user | password                                  |
++-----------+------+-------------------------------------------+
+| localhost | root | *8232A1298A49F710DBEE0B330C42EEC825D4190A |
+| 127.0.0.1 | root |                                           |
+| ::1       | root |                                           |
+| localhost |      |                                           |
++-----------+------+-------------------------------------------+
+4 rows in set (0.00 sec)
+```
+
+## SQL(Structure Query Language)结构查询语言组成部分
+    DDL(Data Definition Language,数据定义语言：定义或改变表的结构、数据类型、表之间的链接和约束等):CREATE, DROP, ALTER
+    DML(Data Manipulation Language,数据操纵语言：数据库里的数据进行操作):SELECT, INSERT, UPDATE,DELETE
+    DCL(Data Control Language,数据控制语言：用来设置或更改数据库用户或角色权限的语句):GRANT, REVOKE,DENY
+    1）DDL操作
+    创建数据库：CREATE {DATABASE | SCHEMA} [IF NOT EXISTS] db_name
+    删除数据库：DROP {DATABASE | SCHEMA} [IF EXISTS] db_name
+    修改数据库：ALTER {DATABASE | SCHEMA} [IF EXISTS] db_name
 
 
