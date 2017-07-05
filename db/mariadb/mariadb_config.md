@@ -156,12 +156,52 @@ MariaDB [mysql]> select host,user,password from user;
 ```
 
 ## SQL(Structure Query Language)结构查询语言组成部分
-    DDL(Data Definition Language,数据定义语言：定义或改变表的结构、数据类型、表之间的链接和约束等):CREATE, DROP, ALTER
-    DML(Data Manipulation Language,数据操纵语言：数据库里的数据进行操作):SELECT, INSERT, UPDATE,DELETE
-    DCL(Data Control Language,数据控制语言：用来设置或更改数据库用户或角色权限的语句):GRANT, REVOKE,DENY
-    1）DDL操作
-    创建数据库：CREATE {DATABASE | SCHEMA} [IF NOT EXISTS] db_name
-    删除数据库：DROP {DATABASE | SCHEMA} [IF EXISTS] db_name
-    修改数据库：ALTER {DATABASE | SCHEMA} [IF EXISTS] db_name
+DDL(Data Definition Language,数据定义语言：定义或改变表的结构、数据类型、表之间的链接和约束等):CREATE, DROP, ALTER  
+DML(Data Manipulation Language,数据操纵语言：数据库里的数据进行操作):SELECT, INSERT, UPDATE,DELETE  
+DCL(Data Control Language,数据控制语言：用来设置或更改数据库用户或角色权限的语句):GRANT, REVOKE,DENY  
+###### 1）DDL操作  
+创建数据库：CREATE {DATABASE | SCHEMA} [IF NOT EXISTS] db_name  
+删除数据库：DROP {DATABASE | SCHEMA} [IF EXISTS] db_name  
+修改数据库：ALTER {DATABASE | SCHEMA} [IF EXISTS] db_name  
+
+```
+MariaDB [(none)]> CREATE DATABASE mydb1;
+Query OK, 1 row affected (0.00 sec)
+
+MariaDB [(none)]> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mydb1              |
+| mysql              |
+| performance_schema |
+| test               |
++--------------------+
+5 rows in set (0.00 sec)
+
+MariaDB [(none)]> drop database mydb1;
+Query OK, 0 rows affected (0.00 sec)
+
+MariaDB [(none)]> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| test               |
++--------------------+
+4 rows in set (0.00 sec)
+
+MariaDB [(none)]> use mydb1
+Database changed
+
+```
+###### 2）DML操作
+插入数据：INSERT INTO  
+第一种：INSERT INTO tb_name [(clo1,col2……)] {VALUES|VALUE} (val1,val2)  
+第二种：INSERT INTO tb_name SET col1=val1,col2=val2,……  
+第三种：INSERT INTO tb_name SELECT clause  
 
 
