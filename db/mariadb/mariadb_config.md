@@ -20,6 +20,8 @@ basedir=D:/JavaE/DB/mariadb-10.0.8-winx64
 datadir=D:/JavaE/DB/mariadb-10.0.8-winx64/data  
 character-set-server=utf8 
 ```
+[Driver 下载](https://downloads.mariadb.org/connector-java/2.0.3/)
+
 ### 启动服务
 
 1.在开始菜单输入cmd，右击以管理员身份运行，运行后将执行目录cd到你的问价解压目录中的bin目录中，例如我的解压在D:\JavaE\DB\mariadb-10.0.8-winx64： 
