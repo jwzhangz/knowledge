@@ -38,7 +38,16 @@ Service successfully installed.
 
 4.CMD，切换到MariaDB解压后路径/bin,执行“mysql -uroot -p"切换至MariaDB模式，初始密码为空。Ctrl + c退出。  
 再执行“SET PASSWORD FOR 'root'@'localhost' = PASSWORD('新密码');”，即可修改账户密码。  
-修改密码：mysqladmin.exe -u root password  
+修改密码：
+```
+mysqladmin.exe -u root password
+New password: ********
+Confirm new password: ********
+```
+
+```
+MariaDB [(none)]> SHOW DATABASES;
+```
 
 
 
