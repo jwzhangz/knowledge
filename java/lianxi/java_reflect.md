@@ -2,5 +2,7 @@
 
 > 写一个使用反射机制返回对象所有实例变量的字符串的“通用”toString方法。如果能处理循环引用，则额外加分。
 
-> 写一个"Hello, World"程序，使用反射机制来查找java.lang.System的out域，并使用invoke方法调用pringln方法。
+> 写一个"Hello, World"程序，使用反射机制来查找java.lang.System的out域，并使用invoke方法调用println方法。
+
+> 衡量常规方法调用和通过反射机制调用方法的性能差异。
 
