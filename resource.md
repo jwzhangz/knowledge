@@ -12,5 +12,5 @@
 [java泛型之桥方法](http://www.cnblogs.com/momooy/p/4931896.html)  
 [java方法调用之动态调用多态（重写override）的实现原理——方法表（三）](http://blog.csdn.net/fan2012huan/article/details/51007517)  
 [java泛型——桥方法](http://blog.csdn.net/pacosonswjtu/article/details/50374131)  
-
+[面试心得与总结—BAT、网易、蘑菇街](http://www.importnew.com/22637.html)  
 
