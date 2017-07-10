@@ -14,3 +14,7 @@
 [java泛型——桥方法](http://blog.csdn.net/pacosonswjtu/article/details/50374131)  
 [面试心得与总结—BAT、网易、蘑菇街](http://www.importnew.com/22637.html)  
 
+
+
+## 其他
+[宋亮：清华博士告诉你如何挑大学选专业，纯干货！](http://www.guancha.cn/songliang/2017_07_10_417309_s.shtml)  
