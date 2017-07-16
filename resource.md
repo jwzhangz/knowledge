@@ -12,4 +12,11 @@
 [java泛型之桥方法](http://www.cnblogs.com/momooy/p/4931896.html)
 [java方法调用之动态调用多态（重写override）的实现原理——方法表（三）](http://blog.csdn.net/fan2012huan/article/details/51007517)
 [java泛型——桥方法](http://blog.csdn.net/pacosonswjtu/article/details/50374131)
-[wget下载整个网站，或者目录全部文件](http://www.cnblogs.com/k98091518/p/5830410.html)  
+[面试心得与总结—BAT、网易、蘑菇街](http://www.importnew.com/22637.html)
+[wget下载整个网站，或者目录全部文件](http://www.cnblogs.com/k98091518/p/5830410.html)
+
+
+
+## 其他
+[宋亮：清华博士告诉你如何挑大学选专业，纯干货！](http://www.guancha.cn/songliang/2017_07_10_417309_s.shtml)
+>>>>>>> 9870a46f602258cb7322e0b9205bdd7cfc447ec4
