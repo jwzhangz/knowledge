@@ -68,3 +68,110 @@ public @interface TestUtil {} // a test utility object
 @Tested(fullyInitialized = true)
 public @interface SUT {} // the System Under Test
 ```
+So, here we use JMockit's @Tested annotation as a meta-annotation. The use of "fullyInitialized = true" causes the dependencies of a tested class to be automatically resolved through dependency injection (specifically, constructor injection followed by field injection, as applicable). The use of "availableDuringSetup = true" merely causes the tested object to be created before any test setup methods (@Before in JUnit or @BeforeMethod in TestNG) are executed, contrary to the default which is to create tested objects right before each test method executes, and after any setup methods. In this first example test class, this effect is not used, so the only benefit of using "@TestUtil" is to document the intent of the field in the test class.
+
+As seen in the test, VetData provides methods that create new test data needed by the test, and other utility methods such as refresh(an entity) (which forces the persistent state of a given entity to be freshly loaded from the database). As the name implies, the test suite would have one such class for each entity type, to be used in one or more test classes whenever they need persistent instances of said types. More details are provided in the following section.
+
+###### Test infrastructure
+Utility classes like VetData look like the following.
+```java
+public final class VetData extends TestDatabase
+{
+   public Vet create(String fullName, String... specialtyNames)
+   {
+      String[] names = fullName.split(" ");
+
+      Vet vet = new Vet();
+      vet.setFirstName(names[0]);
+      vet.setLastName(names[names.length - 1]);
+
+      for (String specialtyName : specialtyNames) {
+         Specialty specialty = new Specialty();
+         specialty.setName(specialtyName);
+
+         vet.getSpecialties().add(specialty);
+      }
+
+      db.save(vet);
+      return vet;
+   }
+
+   // other "create" methods taking different data items, if needed
+}
+```
+Such classes are easy to write, as they simply use the existing entity classes, plus the methods made available in a "db" field from the TestDatabase base class. This is a test infrastructure class which can be reused for different enterprise applications, as long as they use JPA for persistence (and JMockit for integration testing).
+
+```java
+public class TestDatabase
+{
+   @PersistenceContext private EntityManager em;
+   @Inject protected Database db;
+
+   @PostConstruct
+   private void beginTransactionIfNotYet()
+   {
+      EntityTransaction transaction = em.getTransaction();
+
+      if (!transaction.isActive()) {
+         transaction.begin();
+      }
+   }
+
+   @PreDestroy
+   private void endTransactionWithRollbackIfStillActive()
+   {
+      EntityTransaction transaction = em.getTransaction();
+
+      if (transaction.isActive()) {
+         transaction.rollback();
+      }
+   }
+
+   // Other utility methods: "refresh", "findOne", "assertCreated", etc.
+}
+```
+The Database utility class (also available and used in production code) provides an easier to use API than JPA's EntityManager, but its use is optional; tests could directly use the "em" field instead of "db" (were it made protected, of course). The EntityManager em field in the test database class gets injected with an instance automatically created according to the META-INF/persistence.xml file that should be present in the test runtime classpath (this would go into the "src/test" directory when using a Maven-compatible project structure; a "production" version of the file can then be provided under "src/main"). A single default entity manager instance is created, and injected into whichever test or production classes (such as the Database class) have a @PersistenceContext field. If multiple databases are needed, each would have a different entity manager, as configured by the optional "name" attribute of this annotation, with the corresponding entry in the persistence.xml file.
+
+Another important responsibility of this base class is to demarcate the transaction in which each test runs, ensuring that it exists before the test begins, and that it ends with a rollback after the test is completed (either with success or failure). This works because JMockit executes the @PostConstruct and @PreDestroy methods (from the standard javax.annotation API, also supported by the Spring framework) at the appropriate times. Since each "test data" object is introduced to the test class in a @Tested(availableDuringSetup = true) field, it gets "constructed" before any setup or test method, and "destroyed" after each test is finished.
+
+#### Using the Spring framework
+Spring-specific annotations such as @Autowired and @Value are also supported in fully initialized @Tested objects. However, a Spring-based application can also make direct calls to BeanFactory#getBean(...) methods, on instances of various BeanFactory implementation classes.
+
+Regardless of how said bean factory instances are obtained, @Tested and @Injectable objects can be made available as beans from the bean factory instance, by simply applying the mockit.integration.springframework.BeanFactoryMockUp mock-up class, as shown below using JUnit.
+```java
+public final class ExampleSpringIntegrationTest
+{
+   @BeforeClass
+   public static void applySpringIntegration()
+   {
+      new BeanFactoryMockUp();
+   }
+
+   @Tested DependencyImpl dependency;
+   @Tested(fullyInitialized = true) ExampleService exampleService;
+
+   @Test
+   public void exerciseApplicationCodeWhichLooksUpBeansThroughABeanFactory()
+   {
+      // In code under test:
+      BeanFactory beanFactory = new DefaultListableBeanFactory();
+      ExampleService service = (ExampleService) beanFactory.getBean("exampleService");
+      Dependency dep = service.getDependency();
+      ...
+
+      assertSame(exampleService, service);
+      assertSame(dependency, dep);
+   }
+}
+```
+With the bean factory mock-up applied, a tested object from a field in the test class will be automatically returned from any getBean(String) call on any Spring bean factory instance, provided the given bean name equals the tested field name.
+
+Additionally, the mockit.integration.springframework.TestWebApplicationContext class can be used as a org.springframework.web.context.ConfigurableWebApplicationContext implementation which exposes @Tested objects from test classes.
+
+### Trade-offs of the approach
+In this testing approach, the goal is to have integration tests covering all of the Java code in the codebase of an enterprise application. To avoid the difficulties inherent to having the code run inside a Java application server (such as Tomcat, Glassfish, or JBoss Wildfly), these are out-of-container tests where all code (production as well as test code) runs in the same JVM instance.
+
+The tests are written against the API of the highest-level components of the application. Therefore, UI code is not exercised, as it's typically not written in the Java language, but in a technology-specific templating language such as JSF facelets, JSPs, or something supported by the Spring framework. To exercise such UI components, which in a web application also often include JavaScript code, we would need to write functional UI tests based on HTTP requests and responses, using a testing API such as WebDriver or HtmlUnit. Such tests require an in-container approach, which brings a host of practical problems and difficulties, such as how/when to start the application server, how to deploy/re-deploy the application code, and how to keep tests isolated from each other given that a typical functional test often performs one or more database transactions, some or all of them usually getting committed.
+
+In comparison, the out-of-container integration tests shown here are more fine grained, typically comprising a single transaction which is always rolled back at the end of the test. This approach allows for tests that are easier to create, faster to run (in particular, with negligible startup cost), and much less fragile. It's also easier to employ a code coverage tool and easier/faster to use a debugger, since everything runs in a single JVM instance. The downside is that code in UI templates, as well as client-side JavaScript code, doesn't get covered by such tests.
+
