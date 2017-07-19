@@ -11,16 +11,15 @@ An interaction between two classes always takes the form of a method or construc
 ### 1. Mocked types and instances
 Methods and constructors invoked from the code under test on a dependency are the targets for mocking. Mocking provides the mechanism that we need in order to isolate the tested code from (some of) its dependencies. We specify which particular dependencies are to be mocked for a given test (or tests) by declaring suitable mock fields and/or mock parameters; mock fields are declared as annotated instance fields of the test class, while mock parameters are declared as annotated parameters of a test method. The type of the dependency to be mocked will be the type of the mock field or parameter. Such a type can be any kind of reference type: an interface, a class (including abstract and final ones), an annotation, or an enum.
 
-Mocking 提供了一种机制，使被测试代码从依赖中隔离。需要在测试类中将这些依赖定义为带@Mocked注解的field或者方法的入参。
+Mocking 提供了一种机制，使被测试代码从依赖中隔离。这就需要在编写测试类时将这些依赖定义为带@Mocked注解的field或者方法的入参。
 
 By default, all non-private methods (including any that are static, final, or native) of the mocked type will be mocked for the duration of the test. If the declared mocked type is a class, then all of its super-classes up to but not including java.lang.Object will also be mocked, recursively. Therefore, inherited methods will automatically be mocked as well. Also in the case of a class, all of its non-private constructors will get mocked.
 
-默认的，在test期间，所有的mocked type(例如class)的non-private方法(包括static，final或native)将被mocked。如果声明的mocked type是一个类，则它的上溯至Object的父类（不包括Object）也将被mock。所以通过继承得到的方法会自动的被mock。以class为例，所有的non-private的构造器将会被mock。
+默认的，在执行test过程中，被mock的 type(例如class)的所有的non-private方法(包括static，final或native)都将被mock。如果声明的被mock的 type是一个类，则它的上溯至Object的父类（不包括Object）也将被mock。所以通过继承得到的方法会自动的被mock。以class为例，所有的non-private的构造器将会被mock。
 
 When a method or constructor is mocked, its original implementation code won't be executed for invocations occurring during the test. Instead, the call will be redirected to JMockit so it can be dealt with in the manner that was explicitly or implicitly specified for the test.
 
 如果一个方法或构造器被mock，在测试期间，调用这些方法并不会执行方法的代码。这些调用将会被JMockit接管。
-
 
 The following example test skeleton serves as a basic illustration for the declaration of mock fields and mock parameters, as well as the way in which they are typically used in test code. In this tutorial, we use many code snippets like this, where the parts in bold font are the current focus of explanation.
 ```java
@@ -50,21 +49,33 @@ public void doBusinessOperationXyz(@Mocked final AnotherDependency anotherMock)
 ```
 For a mock parameter declared in a test method, an instance of the declared type will be automatically created by JMockit and passed by the JUnit/TestNG test runner when it executes the test method; therefore, the parameter value will never be null. For a mock field, an instance of the declared type will be automatically created by JMockit and assigned to the field, provided it's not final.
 
-如果为一个测试方法添加mock参数，当JUnit/TestNG test runner执行这些测试方法时，JMockit将自动创建一个实例并由test runner传入。如果定义一个mock field，JMockit将自动创建一个实例并赋值给field。注意field不要定义为final。
+如果为一个测试方法添加mock参数，当JUnit/TestNG test runner执行这些测试方法时，JMockit将自动创建一个实例并作为参数由test runner传入。如果定义一个mock field，JMockit将自动创建一个实例并赋值给field。注意field不要定义为final。
 
 There are a few different annotations available for the declaration of mock fields and parameters, and ways in which the default mocking behavior can be modified to suit the needs of a particular test. Other sections of this chapter go into the details, but the basics are: @Mocked is the central mocking annotation, having one optional attribute which is useful in certain cases; @Injectable is another mocking annotation, which constrains mocking to the instance methods of a single mocked instance; and @Capturing is yet another mocking annotation, which extends mocking to the classes implementing a mocked interface, or the subclasses extending a mocked class. When @Injectable or @Capturing is applied to a mock field or mock parameter, @Mocked is implied so it doesn't need to (but can) be applied as well.
 
+下面的章节会详细介绍一些声明mock fields和parameters，以及修改默认mock行为的一些方法。一些常用的注解：
++ @Mocked 有一个可选的属性，在一些特定的场景很有用。
++ @Injectable 强制被mock的实例方法仅作用于单一的实例。
++ @Capturing 将mocking扩展到实现了被mock的interface的类，或者继承一个被mock的class的子类。
 
+当@Injectable or @Capturing应用于mock field或者mock parameter，已经包含了mock的功能，不需要再用@Mocked注解了。
 
 The mocked instances created by JMockit can be used normally in test code (for the recording and verification of expectations), and/or passed to the code under test. Or they may simply go unused. Differently from other mocking APIs, these mocked objects don't have to be the ones used by the code under test when it calls instance methods on its dependencies. By default (ie, when @Injectable is not used), JMockit does not care on which object a mocked instance method is called. This allows the transparent mocking of instances created directly inside code under test, when said code invokes constructors on brand new instances using the new operator; the classes instantiated must be covered by mocked types declared in test code, that's all.
+
+被JMockit创建的mock实例能够被test code正常使用。或者放置不用。这和其他mocking API不同，当被测试代码调用依赖的实例的方法时，这些mock的对象并不是必需的。默认的，JMockit并不关心被mock的实例方法在哪个对象上被调用。因此，当测试代码用new操作符调用构造器创建实例，在被测代码内直接创建透明的mocking，被实例化的class必须被mock 类型覆盖。
 
 ***
 ### 2. Expectations
 An expectation represents a set of invocations to a specific mocked method/constructor that is relevant for a given test. An expectation may cover multiple different invocations to the same method or constructor, but it doesn't have to cover all such invocations that occur during the execution of the test. Whether a particular invocation matches a given expectation or not will depend not only on the method/constructor signature but also on runtime aspects such as the instance on which the method is invoked, argument values, and/or the number of invocations already matched. Therefore, several types of matching constraints can (optionally) be specified for a given expectation.
 
+一个expectation代表着一系列的对mock method/constructor的调用。对于同一个方法或构造器，一个expectation可以包含不同的调用。
+
 When we have one or more invocation parameters involved, an exact argument value may be specified for each parameter. For example, the value "test string" could be specified for a String parameter, causing the expectation to match only those invocations with this exact value in the corresponding parameter. As we will see later, instead of specifying exact argument values, we can specify more relaxed constraints which will match whole sets of different argument values.
 
+
 The example below shows an expectation for Dependency#someMethod(int, String), which will match an invocation to this method with the exact argument values as specified. Notice that the expectation itself is specified through an isolated invocation to the mocked method. There are no special API methods involved, as is common in other mocking APIs. This invocation, however, does not count as one of the "real" invocations we are interested in testing. It's only there so that the expectation can be specified.
+
+这是一个Dependency#someMethod(int, String)方法的expectation例子。这个expectation仅匹配指定参数的调用，也就是只有参数为1和"test"时才匹配。
 
 ```java
 @Test
@@ -87,6 +98,9 @@ We will see more about expectations later, after we understand the differences b
 ***
 ### 3. The *record-replay-verify* model
 Any developer test can be divided in at least three separate execution phases. The phases execute sequentially, one at a time, as demonstrated below.
+
+测试过程一般至少分为三个阶段，每个阶段单独执行。下面逐一介绍。
+
 ```java
 @Test
 public void someTestMethod()
@@ -102,13 +116,23 @@ public void someTestMethod()
 ```
 First, we have a preparation phase, where objects and data items needed for the test are created or obtained from somewhere else. Then, code under test is exercised. Finally, the results from exercising the tested code are compared with the expected results.
 
+首先是准备阶段，测试所需的对象以及各种数据。然后执行被测代码，最后将执行结果和预期进行比较。
+
 This model of three phases is also known as the Arrange, Act, Assert syntax, or "AAA" for short. Different words, but the meaning is the same.
 
 In the context of behavior-based testing with mocked types (and their mocked instances), we can identify the following alternative phases, which are directly related to the three previously described conventional testing phases:
 
+三个阶段：
+
 1. The ***record*** phase, during which invocations can be recorded. This happens during test preparation, before the invocations we want to test are executed.
 2. The ***replay*** phase, during which the mock invocations of interest have a chance to be executed, as the code under test is exercised. The invocations to mocked methods/constructors previously recorded will now be replayed. Often there isn't a one-to-one mapping between invocations recorded and replayed, though.
 3. The ***verify*** phase, during which invocations can be verified to have occurred as expected. This happens during test verification, after the invocations under test had a chance to be executed.
+
+
+1. record阶段，在执行被测代码之前的准备工作，将被测代码中所依赖的调用进行record。
+2. replay阶段，执行被测代码。前一阶段record的调用将会被执行。
+3. verify阶段，验证执行结果是否和预期一致。
+
 Behavior-based tests written with JMockit will typically fit the following templates:
 ```java
 import mockit.*;
