@@ -559,7 +559,12 @@ public void verifyingTheOrderOfSomeExpectationsRelativeToAllOthers()
    }};
 }
 ```
-The example above is actually quite sophisticated, as it verifies several things: a) a method that must be called before others; b) a method that must be called after others; and c) that AnotherDependency#method1() must be called just before DependencyAbc#method2(). In most tests, we will probably only do one of these different kinds of order-related verifications. But the power is there to make all kinds of complex verifications quite easily.
+The example above is actually quite sophisticated, as it verifies several things: 
++ a) a method that must be called before others; 
++ b) a method that must be called after others; and 
++ c) that AnotherDependency#method1() must be called just before DependencyAbc#method2(). 
+
+In most tests, we will probably only do one of these different kinds of order-related verifications. But the power is there to make all kinds of complex verifications quite easily.
 
 Another situation not covered by the examples above is one where we want to verify that certain invocations occurred in a given relative order, while also verifying the other invocations (in any order). For this, we need to write two separate verification blocks, as illustrated below (where mock is a mock field of the test class).
 
