@@ -5,13 +5,13 @@
 使用Set定义的接口，完成两个集合的求并集、交集、差集。
 
 获取当前资源路径
-``` Java
+``` java
 ((URLClassLoader) MainClass.class.getClassLoader()).getURLs();
 ```
 从资源路径下读取.properties文件，通过Properties的方法打印所有键值。
 
 通过Iterator遍历Collection
-```Java
+```java
 List<String> strs = new ArrayList<>();
 strs.add("a");
 strs.add("b");
@@ -25,7 +25,7 @@ while (iter.hasNext()) {
 ```
 
 打印一个类中的所有方法
-```Java
+```java
 
 class Param {
     private Map<String , Object> paramMap;
@@ -68,7 +68,7 @@ public class TestMain {
 ```
 
 打印类中所有的变量，包括类型，名称和值，修改private成员变量的值。
-```Java
+```java
 class TestClass {
     private int anInt;
     public String str;
@@ -97,7 +97,7 @@ public class TestMain {
 ```
 
 通过反射调用方法
-```Java
+```java
 class TestClass {
     private int anInt;
     public String str;
@@ -127,7 +127,7 @@ public class TestMain {
 ```
 
 构造对象
-```Java
+```java
 class TestClass {
     private int anInt;
     public String str;
@@ -171,7 +171,7 @@ public class TestMain {
 ```
 
 实现Arrays类的copyOf方法，用这个方法扩展一个已经满了的数组。
-```Java
+```java
     public static Object[] badCopyOf(Object[] array, int newLength) {
         Object[] newArray = new Object[newLength];
         for (int i = 0; i < Math.min(array.length, newLength); i++) {
