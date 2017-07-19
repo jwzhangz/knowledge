@@ -11,9 +11,16 @@ An interaction between two classes always takes the form of a method or construc
 ### 1. Mocked types and instances
 Methods and constructors invoked from the code under test on a dependency are the targets for mocking. Mocking provides the mechanism that we need in order to isolate the tested code from (some of) its dependencies. We specify which particular dependencies are to be mocked for a given test (or tests) by declaring suitable mock fields and/or mock parameters; mock fields are declared as annotated instance fields of the test class, while mock parameters are declared as annotated parameters of a test method. The type of the dependency to be mocked will be the type of the mock field or parameter. Such a type can be any kind of reference type: an interface, a class (including abstract and final ones), an annotation, or an enum.
 
+Mocking 提供了一种机制，使被测试代码从依赖中隔离。需要在测试类中将这些依赖定义为带@Mocked注解的field或者方法的入参。
+
 By default, all non-private methods (including any that are static, final, or native) of the mocked type will be mocked for the duration of the test. If the declared mocked type is a class, then all of its super-classes up to but not including java.lang.Object will also be mocked, recursively. Therefore, inherited methods will automatically be mocked as well. Also in the case of a class, all of its non-private constructors will get mocked.
 
+默认的，在test期间，所有的mocked type(例如class)的non-private方法(包括static，final或native)将被mocked。如果声明的mocked type是一个类，则它的上溯至Object的父类（不包括Object）也将被mock。所以通过继承得到的方法会自动的被mock。以class为例，所有的non-private的构造器将会被mock。
+
 When a method or constructor is mocked, its original implementation code won't be executed for invocations occurring during the test. Instead, the call will be redirected to JMockit so it can be dealt with in the manner that was explicitly or implicitly specified for the test.
+
+如果一个方法或构造器被mock，在测试期间，调用这些方法并不会执行方法的代码。这些调用将会被JMockit接管。
+
 
 The following example test skeleton serves as a basic illustration for the declaration of mock fields and mock parameters, as well as the way in which they are typically used in test code. In this tutorial, we use many code snippets like this, where the parts in bold font are the current focus of explanation.
 ```java
@@ -43,7 +50,11 @@ public void doBusinessOperationXyz(@Mocked final AnotherDependency anotherMock)
 ```
 For a mock parameter declared in a test method, an instance of the declared type will be automatically created by JMockit and passed by the JUnit/TestNG test runner when it executes the test method; therefore, the parameter value will never be null. For a mock field, an instance of the declared type will be automatically created by JMockit and assigned to the field, provided it's not final.
 
+如果为一个测试方法添加mock参数，当JUnit/TestNG test runner执行这些测试方法时，JMockit将自动创建一个实例并由test runner传入。如果定义一个mock field，JMockit将自动创建一个实例并赋值给field。注意field不要定义为final。
+
 There are a few different annotations available for the declaration of mock fields and parameters, and ways in which the default mocking behavior can be modified to suit the needs of a particular test. Other sections of this chapter go into the details, but the basics are: @Mocked is the central mocking annotation, having one optional attribute which is useful in certain cases; @Injectable is another mocking annotation, which constrains mocking to the instance methods of a single mocked instance; and @Capturing is yet another mocking annotation, which extends mocking to the classes implementing a mocked interface, or the subclasses extending a mocked class. When @Injectable or @Capturing is applied to a mock field or mock parameter, @Mocked is implied so it doesn't need to (but can) be applied as well.
+
+
 
 The mocked instances created by JMockit can be used normally in test code (for the recording and verification of expectations), and/or passed to the code under test. Or they may simply go unused. Differently from other mocking APIs, these mocked objects don't have to be the ones used by the code under test when it calls instance methods on its dependencies. By default (ie, when @Injectable is not used), JMockit does not care on which object a mocked instance method is called. This allows the transparent mocking of instances created directly inside code under test, when said code invokes constructors on brand new instances using the new operator; the classes instantiated must be covered by mocked types declared in test code, that's all.
 
@@ -559,10 +570,10 @@ public void verifyingTheOrderOfSomeExpectationsRelativeToAllOthers()
    }};
 }
 ```
-The example above is actually quite sophisticated, as it verifies several things: 
-+ a) a method that must be called before others; 
-+ b) a method that must be called after others; and 
-+ c) that AnotherDependency#method1() must be called just before DependencyAbc#method2(). 
+The example above is actually quite sophisticated, as it verifies several things:
++ a) a method that must be called before others;
++ b) a method that must be called after others; and
++ c) that AnotherDependency#method1() must be called just before DependencyAbc#method2().
 
 In most tests, we will probably only do one of these different kinds of order-related verifications. But the power is there to make all kinds of complex verifications quite easily.
 
