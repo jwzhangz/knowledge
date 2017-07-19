@@ -272,3 +272,448 @@ public final class ConcatenatingInputStream extends InputStream
    }
 }
 ```
+This class could easily be tested without mocking by using ByteArrayInputStream objects for input, but lets say we want to make sure that the InputStream#read() method is properly invoked on each input stream passed in the constructor. The following test will achieve this.
+```java
+@Test
+public void concatenateInputStreams(
+   @Injectable final InputStream input1, @Injectable final InputStream input2)
+   throws Exception
+{
+   new Expectations() {{
+      input1.read(); returns(1, 2, -1);
+      input2.read(); returns(3, -1);
+   }};
+
+   InputStream concatenatedInput = new ConcatenatingInputStream(input1, input2);
+   byte[] buf = new byte[3];
+   concatenatedInput.read(buf);
+
+   assertArrayEquals(new byte[] {1, 2, 3}, buf);
+}
+```
+Note that the use of @Injectable is indeed necessary here, since the class under test extends the mocked class, and the method called to exercise ConcatenatingInputStream is actually defined in the base InputStream class. If InputStream was mocked "normally", the read(byte[]) method would always be mocked, regardless of the instance on which it is called.
+
+#### 6.2 Declaring multiple mocked instances
+When using @Mocked or @Capturing (and not @Injectable on the same mock field/parameter), we can still match replay invocations to expectations recorded on specific mocked instances. For that, we simply declare multiple mock fields or parameters of the same mocked type, as the next example shows.
+```java
+@Test
+public void matchOnMockInstance(@Mocked final Collaborator mock, @Mocked Collaborator otherInstance)
+{
+   new Expectations() {{ mock.getValue(); result = 12; }};
+
+   // Exercise code under test with mocked instance passed from the test:
+   int result = mock.getValue();
+   assertEquals(12, result);
+
+   // If another instance is created inside code under test...
+   Collaborator another = new Collaborator();
+
+   // ...we won't get the recorded result, but the default one:
+   assertEquals(0, another.getValue());
+}
+```
+The test above will only pass if the tested code (here embedded in the test method itself, for brevity) invokes getValue() on the exact same instance on which the recording invocation was made. This is typically useful when the code under test makes calls on two or more different instances of the same type, and the test wants to verify that a particular invocation occurred on the expected instance.
+
+#### 6.3 Instances created with a given constructor
+Specifically for future instances that will later get created by code under test, JMockit provides a couple mechanisms through which we can match invocations on them. Both mechanisms require the recording of an expectation on a specific constructor invocation (a "new" expression) of the mocked class.
+
+The first mechanism involves simply using the new instance obtained from the recorded constructor expectation, when recording expectations on instance methods. Lets see an example.
+
+```java
+@Test
+public void newCollaboratorsWithDifferentBehaviors(@Mocked Collaborator anyCollaborator)
+{
+   // Record different behaviors for each set of instances:
+   new Expectations() {{
+      // One set, instances created with "a value":
+      Collaborator col1 = new Collaborator("a value");
+      col1.doSomething(anyInt); result = 123;
+
+      // Another set, instances created with "another value":
+      Collaborator col2 = new Collaborator("another value");
+      col2.doSomething(anyInt); result = new InvalidStateException();
+   }};
+
+   // Code under test:
+   new Collaborator("a value").doSomething(5); // will return 123
+   ...
+   new Collaborator("another value").doSomething(0); // will throw the exception
+   ...
+}
+```
+In the above test, we declare a single mock field or mock parameter of the desired class, using @Mocked. This mock field/parameter, however, is not used when recording expectations; instead, we use the instances created on instantiation recordings to record further expectations on instance methods. The future instances created with matching constructor invocations will map to those recorded instances. Also, note that it's not necessarily a one-to-one mapping, but a many-to-one mapping, from potentially many future instances to a single instance used for recorded expectations.
+
+The second mechanism lets us record a replacement instance for those future instances that match a recorded constructor invocation. With this alternative mechanism, we can rewrite the test as follows.
+
+```java
+@Test
+public void newCollaboratorsWithDifferentBehaviors(
+   @Mocked final Collaborator col1, @Mocked final Collaborator col2)
+{
+   new Expectations() {{
+      // Map separate sets of future instances to separate mock parameters:
+      new Collaborator("a value"); result = col1;
+      new Collaborator("another value"); result = col2;
+
+      // Record different behaviors for each set of instances:
+      col1.doSomething(anyInt); result = 123;
+      col2.doSomething(anyInt); result = new InvalidStateException();
+   }};
+
+   // Code under test:
+   new Collaborator("a value").doSomething(5); // will return 123
+   ...
+   new Collaborator("another value").doSomething(0); // will throw the exception
+   ...
+}
+```
+Both versions of the test are equivalent. The second one also allows, when combined with partial mocking, for real (non-mocked) instances to be used as replacements.
+
+***
+### 7. Flexible matching of argument values
+In both the record and verify phases, an invocation to a mocked method or constructor identifies an expectation. If the method/constructor has one or more parameters, then a recorded/verified expectation like doSomething(1, "s", true); will only match an invocation in the replay phase if it has equal argument values. For arguments that are regular objects (not primitives or arrays), the equals(Object) method is used for equality checking. For parameters of array type, equality checking extends to individual elements; therefore, two different array instances having the same length in each dimension and equal corresponding elements are considered equal.
+
+In a given test, we often don't know exactly what those argument values will be, or they simply aren't essential for what is being tested. So, to allow a recorded or verified invocation to match a whole set of replayed invocations with different argument values, we can specify flexible argument matching constraints instead of actual argument values. This is done by using anyXyz fields and/or withXyz(...) methods. The "any" fields and "with" methods are all defined in mockit.Invocations, which is the base class for all the expectation/verification classes used in tests; therefore, they can be used in expectation as well as verification blocks.
+
+#### 7.1 Using the "any" fields for argument matching
+The most common argument matching constraint tends also to be the least restrictive one: to match invocations with any value for a given parameter (of the proper parameter type, of course). For such cases we have a whole set of special argument matching fields, one for each primitive type (and the corresponding wrapper class), one for strings, and a "universal" one of type Object. The test below demonstrates some uses.
+```java
+@Test
+public void someTestMethod(@Mocked final DependencyAbc abc)
+{
+   final DataItem item = new DataItem(...);
+
+   new Expectations() {{
+      // Will match "voidMethod(String, List)" invocations where the first argument is
+      // any string and the second any list.
+      abc.voidMethod(anyString, (List<?>) any);
+   }};
+
+   new UnitUnderTest().doSomething(item);
+
+   new Verifications() {{
+      // Matches invocations to the specified method with any value of type long or Long.
+      abc.anotherVoidMethod(anyLong);
+   }};
+}
+```
+Uses of "any" fields must appear at the actual argument positions in the invocation statement, never before. You can still have regular argument values for other parameters in the same invocation, though. For more details, see the [API documentation](http://jmockit.org/api1x/mockit/Expectations.html#anyInt).
+
+#### 7.2 Using the "with" methods for argument matching
+When recording or verifying an expectation, calls to the withXyz(...) methods can occur for any subset of the arguments passed in the invocation. They can be freely mixed with regular argument-passing (using literal values, local variables, etc.). The only requirement is that such calls appear inside the recorded/verified invocation statement, rather than before it. It's not possible, for example, to first assign the result of a call to withNotEqual(val) to a local variable and then use the variable in the invocation statement. An example test using some of the "with" methods is shown below.
+```java
+@Test
+public void someTestMethod(@Mocked final DependencyAbc abc)
+{
+   final DataItem item = new DataItem(...);
+
+   new Expectations() {{
+      // Will match "voidMethod(String, List)" invocations with the first argument
+      // equal to "str" and the second not null.
+      abc.voidMethod("str", (List<?>) withNotNull());
+
+      // Will match invocations to DependencyAbc#stringReturningMethod(DataItem, String)
+      // with the first argument pointing to "item" and the second one containing "xyz".
+      abc.stringReturningMethod(withSameInstance(item), withSubstring("xyz"));
+   }};
+
+   new UnitUnderTest().doSomething(item);
+
+   new Verifications() {{
+      // Matches invocations to the specified method with any long-valued argument.
+      abc.anotherVoidMethod(withAny(1L));
+   }};
+}
+```
+There are more "with" methods than shown above. See the API documentation for more details.
+
+Besides the several predefined argument matching constraints available in the API, JMockit allows the user to provide custom constraints, through the with(Delegate) and withArgThat(Matcher) methods.
+
+#### 7.3 Using the null value to match any object reference
+When using at least one argument matching method or field for a given expectation, we can use a "shortcut" to specify that any object reference should be accepted (for a parameter of reference type). Simply pass the null value instead of a withAny(x) or any argument matcher. In particular, this avoids the need to cast the value to the declared parameter type. However, bear in mind that this behavior is only applicable when at least one explicit argument matcher (either a "with" method or an "any" field) is used for the expectation. When passed in an invocation that uses no matchers, the null value will match only the null reference. In the previous test, we could therefore have written:
+```java
+@Test
+public void someTestMethod(@Mocked final DependencyAbc abc)
+{
+   ...
+   new Expectations() {{
+      abc.voidMethod(anyString, null);
+   }};
+   ...
+}
+```
+To specifically verify that a given parameter receives the null reference, the withNull() matcher can be used.
+
+#### 7.4 Matching values passed through a varargs parameter
+Occasionally we may need to deal with expectations for "varargs" methods or constructors. It's valid to pass regular values as a varargs argument, and also valid to use the "with"/"any" matchers for such values. However, it's not valid to combine both kinds of value-passing for the same expectation, when there is a varargs parameter. We need to either use only regular values or only values obtained through argument matchers.
+
+In case we want to match invocations where the varargs parameter receives any number of values (including zero), we can specify an expectation with the "(Object[]) any" constraint for the final varargs parameter.
+
+***
+### 8. Specifying invocation count constraints
+So far, we saw that besides an associated method or constructor, an expectation can have invocation results and argument matchers. Given that code under test can call the same method or constructor multiple times with different or identical arguments, we sometimes need a way to account for all those separate invocations.
+
+The number of invocations expected and/or allowed to match a given expectation can be specified through invocation count constraints. The mocking API provides three special fields just for that: times, minTimes, and maxTimes. These fields can be used either when recording or when verifying expectations. In either case, the method or constructor associated with the expectation will be constrained to receive a number of invocations that falls in the specified range. Any invocations less or more than the expected lower or upper limit, respectively, and the test execution will automatically fail. Lets see some example tests.
+```java
+@Test
+public void someTestMethod(@Mocked final DependencyAbc abc)
+{
+   new Expectations() {{
+      // By default, at least one invocation is expected, i.e. "minTimes = 1":
+      new DependencyAbc();
+
+      // At least two invocations are expected:
+      abc.voidMethod(); minTimes = 2;
+
+      // 1 to 5 invocations are expected:
+      abc.stringReturningMethod(); minTimes = 1; maxTimes = 5;
+   }};
+
+   new UnitUnderTest().doSomething();
+}
+
+@Test
+public void someOtherTestMethod(@Mocked final DependencyAbc abc)
+{
+   new UnitUnderTest().doSomething();
+
+   new Verifications() {{
+      // Verifies that zero or one invocations occurred, with the specified argument value:
+      abc.anotherVoidMethod(3); maxTimes = 1;
+
+      // Verifies the occurrence of at least one invocation with the specified arguments:
+      DependencyAbc.someStaticMethod("test", false); // "minTimes = 1" is implied
+   }};
+}
+```
+Unlike the result field, each of these three fields can be specified at most once for a given expectation. Any non-negative integer value is valid for any of the invocation count constraints. If times = 0 or maxTimes = 0 is specified, the first invocation matching the expectation to occur during replay (if any) will cause the test to fail.
+
+***
+### 9. Explicit verification
+Besides specifying invocation count constraints on recorded expectations, we can also verify matching invocations explicitly in a verification block, after the call to the code under test. This is valid for regular expectations, but not for strict expectations, since they are always verified implicitly; there is no point in re-verifying them in a explicit verification block.
+
+Inside a "new Verifications() {...}" block we can use the same API that's available in a "new Expectations() {...}" block, with the exception of methods and fields used to record return values and thrown exceptions/errors. That is, we can freely use the anyXyz fields, the withXyz(...) argument matching methods, and the times, minTimes, and maxTimes invocation count constraint fields. An example test follows.
+
+```java
+@Test
+public void verifyInvocationsExplicitlyAtEndOfTest(@Mocked final Dependency mock)
+{
+   // Nothing recorded here, though it could be.
+
+   // Inside tested code:
+   Dependency dependency = new Dependency();
+   dependency.doSomething(123, true, "abc-xyz");
+
+   // Verifies that Dependency#doSomething(int, boolean, String) was called at least once,
+   // with arguments that obey the specified constraints:
+   new Verifications() {{ mock.doSomething(anyInt, true, withPrefix("abc")); }};
+}
+```
+Note that, by default, a verification checks that at least one matching invocation occurred during replay. When we need to verify an exact number of invocations (including 1), the times = n constraint must be specified.
+
+#### 9.1 Verifying that an invocation never happened
+To do this inside a verification block, add a "times = 0" assignment right after the invocation that is expected to not have happened during the replay phase. If one or more matching invocations did happen, the test will fail.
+
+#### 9.2 Verification in order
+Regular verification blocks created with the Verifications class are unordered. The actual relative order in which aMethod() and anotherMethod() were called during the replay phase is not verified, but only that each method was executed at least once. If you want to verify the relative order of invocations, then a "new VerificationsInOrder() {...}" block must be used instead. Inside this block, simply write invocations to one or more mocked types in the order they are expected to have occurred.
+
+```java
+@Test
+public void verifyingExpectationsInOrder(@Mocked final DependencyAbc abc)
+{
+   // Somewhere inside the tested code:
+   abc.aMethod();
+   abc.doSomething("blah", 123);
+   abc.anotherMethod(5);
+   ...
+
+   new VerificationsInOrder() {{
+      // The order of these invocations must be the same as the order
+      // of occurrence during replay of the matching invocations.
+      abc.aMethod();
+      abc.anotherMethod(anyInt);
+   }};
+}
+```
+Note that the call abc.doSomething(...) was not verified in the test, so it could have occurred at any time (or not at all).
+
+#### 9.3 Partially ordered verification
+Suppose you want to verify that a particular method (or constructor) was called before/after other invocations, but you don't care about the order in which those other invocations occurred. Inside an ordered verification block, this can be achieved by simply calling the unverifiedInvocations() method at the appropriate place(s). The following test demonstrates it.
+
+```java
+@Mocked DependencyAbc abc;
+@Mocked AnotherDependency xyz;
+
+@Test
+public void verifyingTheOrderOfSomeExpectationsRelativeToAllOthers()
+{
+   new UnitUnderTest().doSomething();
+
+   new VerificationsInOrder() {{
+      abc.methodThatNeedsToExecuteFirst();
+      unverifiedInvocations(); // Invocations not verified must come here...
+      xyz.method1();
+      abc.method2();
+      unverifiedInvocations(); // ... and/or here.
+      xyz.methodThatNeedsToExecuteLast();
+   }};
+}
+```
+The example above is actually quite sophisticated, as it verifies several things: a) a method that must be called before others; b) a method that must be called after others; and c) that AnotherDependency#method1() must be called just before DependencyAbc#method2(). In most tests, we will probably only do one of these different kinds of order-related verifications. But the power is there to make all kinds of complex verifications quite easily.
+
+Another situation not covered by the examples above is one where we want to verify that certain invocations occurred in a given relative order, while also verifying the other invocations (in any order). For this, we need to write two separate verification blocks, as illustrated below (where mock is a mock field of the test class).
+
+```java
+@Test
+public void verifyFirstAndLastCallsWithOthersInBetweenInAnyOrder()
+{
+   // Invocations that occur while exercising the code under test:
+   mock.prepare();
+   mock.setSomethingElse("anotherValue");
+   mock.setSomething(123);
+   mock.notifyBeforeSave();
+   mock.save();
+
+   new VerificationsInOrder() {{
+      mock.prepare(); // first expected call
+      unverifiedInvocations(); // others at this point
+      mock.notifyBeforeSave(); // just before last
+      mock.save(); times = 1; // last expected call
+   }};
+
+   // Unordered verification of the invocations previously left unverified.
+   // Could be ordered, but then it would be simpler to just include these invocations
+   // in the previous block, at the place where "unverifiedInvocations()" is called.
+   new Verifications() {{
+      mock.setSomething(123);
+      mock.setSomethingElse(anyString);
+   }};
+}
+```
+Usually, when a test has multiple verification blocks their relative order of execution is important. In the previous test, for example, if the unordered block came before it would have left no "unverified invocations" to match a later call to unverifiedInvocations(); the test would still pass (assuming it originally passed) since it's not required that unverified invocations actually occurred at the called position, but it would not have verified that the unordered group of invocations occurred between the first and last expected calls.
+
+#### 9.4 Full verification
+Sometimes it may be important to have all invocations to the mocked types involved in a test verified. This is automatically the case when recording strict expectations, since any unexpected invocation causes the test to fail. When regular expectations are explicitly verified, though, a "new FullVerifications() {...}" block can be used to make sure that no invocations are left unverified.
+
+```java
+@Test
+public void verifyAllInvocations(@Mocked final Dependency mock)
+{
+   // Code under test included here for easy reference:
+   mock.setSomething(123);
+   mock.setSomethingElse("anotherValue");
+   mock.setSomething(45);
+   mock.save();
+
+   new FullVerifications() {{
+      // Verifications here are unordered, so the following invocations could be in any order.
+      mock.setSomething(anyInt); // verifies two actual invocations
+      mock.setSomethingElse(anyString);
+      mock.save(); // if this verification (or any other above) is removed the test will fail
+   }};
+}
+```
+Note that if a lower limit (a minimum invocation count constraint) is specified for an expectation, then this constraint will always be implicitly verified at the end of the test. Therefore, explicitly verifying such an expectation inside the full verification block is not necessary.
+
+#### 9.5 Full verification in order
+So, we have seen how to do unordered verifications with Verifications, ordered verifications with VerificationsInOrder, and full verifications with FullVerifications. But what about full ordered verifications? Easy enough:
+
+```java
+@Test
+public void verifyAllInvocationsInOrder(@Mocked final Dependency mock)
+{
+   // Code under test included here for easy reference:
+   mock.setSomething(123);
+   mock.setSomethingElse("anotherValue");
+   mock.setSomething(45);
+   mock.save();
+
+   new FullVerificationsInOrder() {{
+      mock.setSomething(anyInt);
+      mock.setSomethingElse(anyString);
+      mock.setSomething(anyInt);
+      mock.save();
+   }};
+}
+```
+Notice there is a not so obvious difference in semantics, though. In the verifyAllInvocations test above, we were able to match two separate mock.setSomething(...) invocations with a single invocation in the verification block. In the verifyAllInvocationsInOrder test, however, we had to write two separate invocations to that method inside the block, in the proper order with respect to other invocations.
+
+#### 9.6 Restricting the set of mocked types to be fully verified
+By default, all invocations to all mocked instances/types in effect for a given test must be verified explicitly when using a "new FullVerifications() {}" or "new FullVerificationsInOrder() {}" block. Now, what if we have a test with two (or more) mocked types but we only want to fully verify invocations to one of them (or to any subset of mocked types when more than two)? The answer is to use the FullVerifications(mockedTypesAndInstancesToVerify) constructor, where only the given mocked instances and mocked types (ie, class objects/literals) are considered. The following test provides an example.
+
+```java
+@Test
+public void verifyAllInvocationsToOnlyOneOfTwoMockedTypes(
+   @Mocked final Dependency mock1, @Mocked AnotherDependency mock2)
+{
+   // Inside code under test:
+   mock1.prepare();
+   mock1.setSomething(123);
+   mock2.doSomething();
+   mock1.editABunchMoreStuff();
+   mock1.save();
+
+   new FullVerifications(mock1) {{
+      mock1.prepare();
+      mock1.setSomething(anyInt);
+      mock1.editABunchMoreStuff();
+      mock1.save(); times = 1;
+   }};
+}
+```
+In the test above, the mock2.doSomething() invocation is never verified.
+
+To restrict verification only to the methods/constructors of a single mocked class, pass the class literal to the FullVerifications(...) or FullVerificationsInOrder(...) constructor. For example, the new FullVerificationsInOrder(AnotherDependency.class) { ... } block would only make sure that all invocations to the mocked AnotherDependency class were verified.
+
+#### 9.7 Verifying that no invocations occurred
+To verify that no invocations at all occurred on the mocked types/instances used in a test, add an empty full verification block to it. As always, note that any expectations that were recorded as expected through a specified times/minTimes constraint are verified implicitly and therefore disregarded by the full verification block; in such a case the empty verification block will verify that no other invocations occurred. Additionally, if any expectations were verified in a previous verification block in the same test, they are also disregarded by the full verification block.
+
+If the test uses two or more mocked types/instances and you want to verify that no invocations occurred for some of them, specify the desired mocked types and/or instances in the constructor to the empty verification block. An example test follows.
+
+```java
+@Test
+public void verifyNoInvocationsOnOneOfTwoMockedDependenciesBeyondThoseRecordedAsExpected(
+   @Mocked final Dependency mock1, @Mocked final AnotherDependency mock2)
+{
+   new Expectations() {{
+      // These two are recorded as expected:
+      mock1.setSomething(anyInt);
+      mock2.doSomething(); times = 1;
+   }};
+
+   // Inside code under test:
+   mock1.prepare();
+   mock1.setSomething(1);
+   mock1.setSomething(2);
+   mock1.save();
+   mock2.doSomething();
+
+   // Will verify that no invocations other than to "doSomething()" occurred on mock2:
+   new FullVerifications(mock2) {};
+}
+```
+
+#### 9.8 Verifying unspecified invocations that should not happen
+A full verification block (ordered or not) also allows us to verify that certain methods and/or constructors never get invoked, without having to record or verify each one of them with a corresponding times = 0 assignment. The following test provides an example.
+```java
+@Test
+public void readOnlyOperation(@Mocked final Dependency mock)
+{
+   new Expectations() {{
+      mock.getData(); result = "test data";
+   }};
+
+   // Code under test:
+   String data = mock.getData();
+   // mock.save() should not be called here
+   ...
+
+   new FullVerifications() {{
+      mock.getData(); minTimes = 0; // calls to getData() are allowed, others are not
+   }};
+}
+```
+If a call to any method (or constructor) of the Dependency class occurs during the replay phase, except for the ones explicitly verified in the verification block (Dependency#getData() in this case), then the test above will fail. On the other hand, it may be easier to use strict expectations in such cases, without any verification block at all.
+
+***
+### 10. Capturing invocation arguments for verification
