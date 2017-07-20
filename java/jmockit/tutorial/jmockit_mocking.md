@@ -129,6 +129,7 @@ In the context of behavior-based testing with mocked types (and their mocked ins
 3. The ***verify*** phase, during which invocations can be verified to have occurred as expected. This happens during test verification, after the invocations under test had a chance to be executed.
 
 
+
 1. record阶段，在执行被测代码之前的准备工作，将被测代码中所依赖的调用进行record。
 2. replay阶段，执行被测代码。前一阶段record的调用将会被执行。
 3. verify阶段，验证执行结果是否和预期一致。
