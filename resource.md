@@ -15,6 +15,7 @@
 [面试心得与总结—BAT、网易、蘑菇街](http://www.importnew.com/22637.html)  
 [wget下载整个网站，或者目录全部文件](http://www.cnblogs.com/k98091518/p/5830410.html)  
 [Jmockit用户指南中文翻译（未校对）之三](http://leegic.iteye.com/blog/1230937)   
+[JMockit 中捕获 mock 对象方法的调用参数](https://unmi.cc/jmockit-capture-mock-call-arguments/)  
 
 
 
