@@ -14,6 +14,7 @@
 [java泛型——桥方法](http://blog.csdn.net/pacosonswjtu/article/details/50374131)  
 [面试心得与总结—BAT、网易、蘑菇街](http://www.importnew.com/22637.html)  
 [wget下载整个网站，或者目录全部文件](http://www.cnblogs.com/k98091518/p/5830410.html)  
+[Jmockit用户指南中文翻译（未校对）之三](http://leegic.iteye.com/blog/1230937)   
 
 
 
