@@ -458,12 +458,17 @@ Both versions of the test are equivalent. The second one also allows, when combi
 ### 7. Flexible matching of argument values
 In both the record and verify phases, an invocation to a mocked method or constructor identifies an expectation. If the method/constructor has one or more parameters, then a recorded/verified expectation like doSomething(1, "s", true); will only match an invocation in the replay phase if it has equal argument values. For arguments that are regular objects (not primitives or arrays), the equals(Object) method is used for equality checking. For parameters of array type, equality checking extends to individual elements; therefore, two different array instances having the same length in each dimension and equal corresponding elements are considered equal.
 
-在record和verify阶段，mock方法或者构造器的调用构成一个expectation。如果method/constructor有一个或多个参数，类似于doSomething(1, "s", true);在reply阶段只有参数相同时才能匹配上。对于一个常规对象（非primitives或数组）参数，相等性检查时会调用equals方法。对于数组参数，
+在record和verify阶段，mock方法或者构造器的调用构成一个expectation。如果method/constructor有一个或多个参数，类似于doSomething(1, "s", true);在reply阶段只有参数相同时才能匹配上。对于一个常规对象（非primitives或数组）参数，相等性检查时会调用equals方法。对于数组参数，相等性测试会扩展到每个元素，因此长度相等并且每个元素都相等的数组是相等的。
 
 In a given test, we often don't know exactly what those argument values will be, or they simply aren't essential for what is being tested. So, to allow a recorded or verified invocation to match a whole set of replayed invocations with different argument values, we can specify flexible argument matching constraints instead of actual argument values. This is done by using anyXyz fields and/or withXyz(...) methods. The "any" fields and "with" methods are all defined in mockit.Invocations, which is the base class for all the expectation/verification classes used in tests; therefore, they can be used in expectation as well as verification blocks.
 
+在一个给定的测试中，我们精诚不能确定参数值具体是什么，或者仅仅是他们是什么并不重要，对测试没影响。因此想要record或者verified invocation 匹配到replay阶段使用所有可能的参数集的invocation，就需要灵活的参数替代具体的参数值。需要使用anyXyz fields and/or withXyz(...) methods。mockit.Invocations定义了 "any" fields and "with" methods。这是一个基础类，在expectation以及verification块中使用。
+
 #### 7.1 Using the "any" fields for argument matching
 The most common argument matching constraint tends also to be the least restrictive one: to match invocations with any value for a given parameter (of the proper parameter type, of course). For such cases we have a whole set of special argument matching fields, one for each primitive type (and the corresponding wrapper class), one for strings, and a "universal" one of type Object. The test below demonstrates some uses.
+
+最常用的参数匹配约束一般是限制最小的，即对于一个给定的参数，用任意值匹配调用。下面例子中，anyString表示 new UnitUnderTest().doSomething(item) 中调用 abc.voidMethod 方法使用任意字符串作为参数都可以被匹配到，anyLong表示参数可以是任意的long。
+
 ```java
 @Test
 public void someTestMethod(@Mocked final DependencyAbc abc)
@@ -488,6 +493,9 @@ Uses of "any" fields must appear at the actual argument positions in the invocat
 
 #### 7.2 Using the "with" methods for argument matching
 When recording or verifying an expectation, calls to the withXyz(...) methods can occur for any subset of the arguments passed in the invocation. They can be freely mixed with regular argument-passing (using literal values, local variables, etc.). The only requirement is that such calls appear inside the recorded/verified invocation statement, rather than before it. It's not possible, for example, to first assign the result of a call to withNotEqual(val) to a local variable and then use the variable in the invocation statement. An example test using some of the "with" methods is shown below.
+
+当record或者verify一个expectation时，可以使用withXyz(...)方法来需要匹配到的参数集。唯一需要注意的是这些方法只能用在recorded/verified中的调用语句中。
+
 ```java
 @Test
 public void someTestMethod(@Mocked final DependencyAbc abc)
@@ -518,6 +526,9 @@ Besides the several predefined argument matching constraints available in the AP
 
 #### 7.3 Using the null value to match any object reference
 When using at least one argument matching method or field for a given expectation, we can use a "shortcut" to specify that any object reference should be accepted (for a parameter of reference type). Simply pass the null value instead of a withAny(x) or any argument matcher. In particular, this avoids the need to cast the value to the declared parameter type. However, bear in mind that this behavior is only applicable when at least one explicit argument matcher (either a "with" method or an "any" field) is used for the expectation. When passed in an invocation that uses no matchers, the null value will match only the null reference. In the previous test, we could therefore have written:
+
+在一个至少一个参数匹配方法或者field的expectation中，可以使用一个"简写"来指定任意对象引用都能够匹配到。仅需要用null替代withAny(x)或者任意参数匹配。特别是，这避免了将类型强制转换到声明的参数类型。需要注意的是，这只适用于至少有一个显示匹配参数(使用with方法或者any field)的情况。
+
 ```java
 @Test
 public void someTestMethod(@Mocked final DependencyAbc abc)
@@ -530,17 +541,27 @@ public void someTestMethod(@Mocked final DependencyAbc abc)
 }
 ```
 To specifically verify that a given parameter receives the null reference, the withNull() matcher can be used.
+如果要验证入参为null，可以使用withNull()方法。
 
 #### 7.4 Matching values passed through a varargs parameter
 Occasionally we may need to deal with expectations for "varargs" methods or constructors. It's valid to pass regular values as a varargs argument, and also valid to use the "with"/"any" matchers for such values. However, it's not valid to combine both kinds of value-passing for the same expectation, when there is a varargs parameter. We need to either use only regular values or only values obtained through argument matchers.
 
+"with"/"any"参数可以用在变参数场景。要么使用常规参数，要么使用匹配参数（"with"/"any"参数），不能混合使用。
+
 In case we want to match invocations where the varargs parameter receives any number of values (including zero), we can specify an expectation with the "(Object[]) any" constraint for the final varargs parameter.
+
+如果要匹配的变参需要接收任意数量的值，可以指定"(Object[]) any"作为参数。
 
 ***
 ### 8. Specifying invocation count constraints
 So far, we saw that besides an associated method or constructor, an expectation can have invocation results and argument matchers. Given that code under test can call the same method or constructor multiple times with different or identical arguments, we sometimes need a way to account for all those separate invocations.
 
+一个expectation能够关联一个方法，并设置匹配参数和返回结果。被测代码可以多次调用mock方法，并传入任意或者特定参数。有时候我们需要一个方法对调用进行统计。
+
 The number of invocations expected and/or allowed to match a given expectation can be specified through invocation count constraints. The mocking API provides three special fields just for that: times, minTimes, and maxTimes. These fields can be used either when recording or when verifying expectations. In either case, the method or constructor associated with the expectation will be constrained to receive a number of invocations that falls in the specified range. Any invocations less or more than the expected lower or upper limit, respectively, and the test execution will automatically fail. Lets see some example tests.
+
+在expectation中可以设置期望的调用次数。API提供了三个field：times, minTimes, and maxTimes。这三个field可以用在record和verify阶段。设置这几个field的方法的调用次数必须在期望范围内，否则测试失败。
+
 ```java
 @Test
 public void someTestMethod(@Mocked final DependencyAbc abc)
@@ -575,11 +596,17 @@ public void someOtherTestMethod(@Mocked final DependencyAbc abc)
 ```
 Unlike the result field, each of these three fields can be specified at most once for a given expectation. Any non-negative integer value is valid for any of the invocation count constraints. If times = 0 or maxTimes = 0 is specified, the first invocation matching the expectation to occur during replay (if any) will cause the test to fail.
 
+和result field不一样，这三个field在一个expectation中最多只能被设置一次。只能设置为非负整数。可以被设置为0.但是一旦被调用，则测试失败。
+
 ***
 ### 9. Explicit verification
 Besides specifying invocation count constraints on recorded expectations, we can also verify matching invocations explicitly in a verification block, after the call to the code under test. This is valid for regular expectations, but not for strict expectations, since they are always verified implicitly; there is no point in re-verifying them in a explicit verification block.
 
+除了在recorded expectations中设置调用次数，也可以在待测代码运行后，在verification块中显示验证调用，verification只能和常规expectations配合使用，因为strict expectation总是隐式的验证，所以无需再在verification中验证。
+
 Inside a "new Verifications() {...}" block we can use the same API that's available in a "new Expectations() {...}" block, with the exception of methods and fields used to record return values and thrown exceptions/errors. That is, we can freely use the anyXyz fields, the withXyz(...) argument matching methods, and the times, minTimes, and maxTimes invocation count constraint fields. An example test follows.
+
+能够用在"new Expectations() {...}"块中的API，也同样能够用在在"new Verifications() {...}"块中。
 
 ```java
 @Test
@@ -598,11 +625,17 @@ public void verifyInvocationsExplicitlyAtEndOfTest(@Mocked final Dependency mock
 ```
 Note that, by default, a verification checks that at least one matching invocation occurred during replay. When we need to verify an exact number of invocations (including 1), the times = n constraint must be specified.
 
+默认的，一个verification检测匹配到的调用至少在replay中被调用一次。如果需要验证精确的调用次数，需要设置times=n。
+
 #### 9.1 Verifying that an invocation never happened
 To do this inside a verification block, add a "times = 0" assignment right after the invocation that is expected to not have happened during the replay phase. If one or more matching invocations did happen, the test will fail.
 
+要验证在replay阶段的方法调用没有发生，需要在verification块中设置times = 0。如果发生一次或多次调用，测试失败。
+
 #### 9.2 Verification in order
 Regular verification blocks created with the Verifications class are unordered. The actual relative order in which aMethod() and anotherMethod() were called during the replay phase is not verified, but only that each method was executed at least once. If you want to verify the relative order of invocations, then a "new VerificationsInOrder() {...}" block must be used instead. Inside this block, simply write invocations to one or more mocked types in the order they are expected to have occurred.
+
+通过Verifications class创建常规的verification块是无序的。不检测在replay阶段调用函数的顺序，只检测函数是否被至少调用一次。如果想要验证调用顺序，可以使用"new VerificationsInOrder() {...}" 块。
 
 ```java
 @Test
@@ -624,8 +657,12 @@ public void verifyingExpectationsInOrder(@Mocked final DependencyAbc abc)
 ```
 Note that the call abc.doSomething(...) was not verified in the test, so it could have occurred at any time (or not at all).
 
+因为并没有验证abc.doSomething(...)，因此在replay阶段调用这个函数对结果没有影响。
+
 #### 9.3 Partially ordered verification
 Suppose you want to verify that a particular method (or constructor) was called before/after other invocations, but you don't care about the order in which those other invocations occurred. Inside an ordered verification block, this can be achieved by simply calling the unverifiedInvocations() method at the appropriate place(s). The following test demonstrates it.
+
+假设需要验证这样的情况，一个特定的方法在其他方法执行之前或之后才会调用，但是又不关心其他方法的执行顺序。在VerificationsInOrder块中，只需要在适当的地方调用unverifiedInvocations()方法。
 
 ```java
 @Mocked DependencyAbc abc;
@@ -651,9 +688,18 @@ The example above is actually quite sophisticated, as it verifies several things
 + b) a method that must be called after others; and
 + c) that AnotherDependency#method1() must be called just before DependencyAbc#method2().
 
+上面的例子验证了下面几件事情：
++ a) 一个方法必须在其他方法之前调用。
++ b) 一个方法必须在其他方法调用之后。
++ c) AnotherDependency#method1() 必须在 DependencyAbc#method2() 之前调用.
+
 In most tests, we will probably only do one of these different kinds of order-related verifications. But the power is there to make all kinds of complex verifications quite easily.
 
+在大多数测试中，我们可能只需要使用其中的一种顺序验证。
+
 Another situation not covered by the examples above is one where we want to verify that certain invocations occurred in a given relative order, while also verifying the other invocations (in any order). For this, we need to write two separate verification blocks, as illustrated below (where mock is a mock field of the test class).
+
+另一个前面没有提到的场景是，我们需要验证一个特定的调用顺序，同时还需要验证另一个调用顺序，也就是说在同一个执行流程中，存在着多个顺序。只需要两个单独的verification块。
 
 ```java
 @Test
@@ -684,8 +730,12 @@ public void verifyFirstAndLastCallsWithOthersInBetweenInAnyOrder()
 ```
 Usually, when a test has multiple verification blocks their relative order of execution is important. In the previous test, for example, if the unordered block came before it would have left no "unverified invocations" to match a later call to unverifiedInvocations(); the test would still pass (assuming it originally passed) since it's not required that unverified invocations actually occurred at the called position, but it would not have verified that the unordered group of invocations occurred between the first and last expected calls.
 
+一般的，当测试包含多个verification块时，他们的顺序很重要。在前一个例子中，如果无序块在有序块之前，则后面有序verification块的unverifiedInvocations()将匹配不到"unverified invocations"。测试依然会pass因为实际上unverified invocations调用是0个还是多个都可以，这并不影响测试结果。
+
 #### 9.4 Full verification
 Sometimes it may be important to have all invocations to the mocked types involved in a test verified. This is automatically the case when recording strict expectations, since any unexpected invocation causes the test to fail. When regular expectations are explicitly verified, though, a "new FullVerifications() {...}" block can be used to make sure that no invocations are left unverified.
+
+有时，对所有的被mock的方法的调用都需要被验证。如果在record中使用 strict expectation，这些都是自动完成的，因为任何非预期的调用都会导致测试失败。当显式验证常规expectations时，可以使用"new FullVerifications() {...}"块来保证所有的调用都被验证到。
 
 ```java
 @Test
@@ -707,8 +757,12 @@ public void verifyAllInvocations(@Mocked final Dependency mock)
 ```
 Note that if a lower limit (a minimum invocation count constraint) is specified for an expectation, then this constraint will always be implicitly verified at the end of the test. Therefore, explicitly verifying such an expectation inside the full verification block is not necessary.
 
+注意，如果一个expectation指定了调用数量约束，那么这个约束将在测试结束时隐式的验证。无需在full verification块中显示的验证。
+
 #### 9.5 Full verification in order
 So, we have seen how to do unordered verifications with Verifications, ordered verifications with VerificationsInOrder, and full verifications with FullVerifications. But what about full ordered verifications? Easy enough:
+
+一个验证全部的，有序的verifications例子：
 
 ```java
 @Test
@@ -730,8 +784,12 @@ public void verifyAllInvocationsInOrder(@Mocked final Dependency mock)
 ```
 Notice there is a not so obvious difference in semantics, though. In the verifyAllInvocations test above, we were able to match two separate mock.setSomething(...) invocations with a single invocation in the verification block. In the verifyAllInvocationsInOrder test, however, we had to write two separate invocations to that method inside the block, in the proper order with respect to other invocations.
 
+在verifyAllInvocations例子中，在verification块中，我们用一个单独的invocation来匹配两个mock.setSomething(...)调用。而在verifyAllInvocationsInOrder例子中，我们不得不用两个单独的invocations来表明invocations之间的顺序。
+
 #### 9.6 Restricting the set of mocked types to be fully verified
 By default, all invocations to all mocked instances/types in effect for a given test must be verified explicitly when using a "new FullVerifications() {}" or "new FullVerificationsInOrder() {}" block. Now, what if we have a test with two (or more) mocked types but we only want to fully verify invocations to one of them (or to any subset of mocked types when more than two)? The answer is to use the FullVerifications(mockedTypesAndInstancesToVerify) constructor, where only the given mocked instances and mocked types (ie, class objects/literals) are considered. The following test provides an example.
+
+默认的，在FullVerifications块或者FullVerificationsInOrder块中，所有mocked instances/types的调用必须被验证。如果有两个mock type，但只需要验证其中之一，该怎么办？可以使用FullVerifications(mockedTypesAndInstancesToVerify)构造器。下面是例子：
 
 ```java
 @Test
@@ -757,10 +815,16 @@ In the test above, the mock2.doSomething() invocation is never verified.
 
 To restrict verification only to the methods/constructors of a single mocked class, pass the class literal to the FullVerifications(...) or FullVerificationsInOrder(...) constructor. For example, the new FullVerificationsInOrder(AnotherDependency.class) { ... } block would only make sure that all invocations to the mocked AnotherDependency class were verified.
 
+如果限定verification只验证某一个类的mock方法，则可以将这个类作为参数传入FullVerifications(...) 或 FullVerificationsInOrder(...)。例如，new FullVerificationsInOrder(AnotherDependency.class) { ... }。这个块中将会验证所有的AnotherDependency类的调用。
+
 #### 9.7 Verifying that no invocations occurred
 To verify that no invocations at all occurred on the mocked types/instances used in a test, add an empty full verification block to it. As always, note that any expectations that were recorded as expected through a specified times/minTimes constraint are verified implicitly and therefore disregarded by the full verification block; in such a case the empty verification block will verify that no other invocations occurred. Additionally, if any expectations were verified in a previous verification block in the same test, they are also disregarded by the full verification block.
 
+想要验证没有调用mock方法，可以添加一个空的full verification block。expectations块中定义的有调用次数限制的invocations，则会被隐式的验证，不需要显示验证。另外如果任意的expectations被前一个verification验证，则会被后面的full verification block忽略。
+
 If the test uses two or more mocked types/instances and you want to verify that no invocations occurred for some of them, specify the desired mocked types and/or instances in the constructor to the empty verification block. An example test follows.
+
+如果测试使用两个或更多的mock类型或实例，并希望其中的一些没有被调用。只需要将想要验证的类型或实例作为参数传入FullVerifications构造器。
 
 ```java
 @Test
@@ -787,6 +851,9 @@ public void verifyNoInvocationsOnOneOfTwoMockedDependenciesBeyondThoseRecordedAs
 
 #### 9.8 Verifying unspecified invocations that should not happen
 A full verification block (ordered or not) also allows us to verify that certain methods and/or constructors never get invoked, without having to record or verify each one of them with a corresponding times = 0 assignment. The following test provides an example.
+
+全验证快也可以用来验证指定方法不被调用。不需要在record或者verify阶段为每个方法设置times = 0。
+
 ```java
 @Test
 public void readOnlyOperation(@Mocked final Dependency mock)
@@ -806,10 +873,17 @@ public void readOnlyOperation(@Mocked final Dependency mock)
 }
 ```
 If a call to any method (or constructor) of the Dependency class occurs during the replay phase, except for the ones explicitly verified in the verification block (Dependency#getData() in this case), then the test above will fail. On the other hand, it may be easier to use strict expectations in such cases, without any verification block at all.
+除了在验证块中显示验证的方法，在replay阶段还有别的依赖类的方法被调用，则上个测试会失败。使用严格期望块，不用验证块可能会简单一些。
+
 
 ***
 ### 10. Capturing invocation arguments for verification
 Invocation arguments can be captured for later verification through a set of special "withCapture(...)" methods. There are three different cases, each with its own specific capturing method: 1) verification of arguments passed to a mocked method, in a single invocation: T withCapture(); 2) verification of arguments passed to a mocked method, in multiple invocations: T withCapture(List<T>); and 3) verification of arguments passed to a mocked constructor: List<T> withCapture(T).
+
+通过一系列的withCapture(...)方法可以在验证块中捕获参数，有3种不同的情况，每种情况都有指定的捕获方法。
++ 1) 参数传递到mock方法，一次调用，T withCapture()。
++ 2) 参数传递到mock方法，多重调用，T withCapture(List<T>)， 捕获多次调用的参数放到一个列表中，它的返回值只会保留最后一次的调用参数，需要获得全部捕获的值必须传递一个 List<T> 给 withCapture 方法。。
++ 3) 参数传递到mock 构造器，List<T> withCapture(T)。
 
 #### 10.1 Capturing arguments from a single invocation
 To capture arguments from a single invocation to a mocked method or constructor, we use "withCapture()", as the following example test demonstrates.
@@ -832,8 +906,12 @@ public void capturingArgumentsFromSingleInvocation(@Mocked final Collaborator mo
 ```
 The withCapture() method can only be used in verification blocks. Typically, we use it when a single matching invocation is expected to occur; if more than one such invocation occurs, however, the last one to occur overwrites the values captured by previous ones. It is particularly useful with parameters of a complex type (think a JPA @Entity), which may contain several items whose values need to be checked.
 
+withCapture()只能被用在verification块。一般都是用于期望的调用被执行一次的情况，如果调用被多次执行，则只保留最后一个结果。
+
 #### 10.2 Capturing arguments from multiple invocations
 If multiple invocations to a mocked method or constructor are expected, and we want to capture values for all of them, then the withCapture(List) method should be used instead, as in the example below.
+
+如果一个mock方法被多次调用，又希望捕获所有的参数，就可以使用withCapture(List)方法。
 
 ```java
 @Test
@@ -854,9 +932,12 @@ public void capturingArgumentsFromMultipleInvocations(@Mocked final Collaborator
 }
 ```
 Differently from withCapture(), the withCapture(List) overload can also be used in expectation recording blocks.
+withCapture()只能用于验证块，withCapture(List)还可以用在期望块。
 
 #### 10.3 Capturing new instances
 Finally, we can capture the new instances of a mocked class that got created during the test.
+
+捕获mock类的新建实例。
 
 ```java
 @Test
@@ -884,6 +965,8 @@ public void capturingNewInstances(@Mocked Person mockedPerson)
 ### 11. Delegates: specifying custom results
 We have seen how to record results for invocations through assignments to the result field or calls to the returns(...) method. We have also seen how to match invocation arguments flexibly with the withXyz(...) group of methods and the various anyXyz fields. But what if a test needs to decide the result of a recorded invocation based on the arguments it will receive at replay time? We can do it through a Delegate instance, as exemplified below.
 
+通过向result field赋值可以设置一个期望调用的返回结果。如果一个调用记录的结果取决于replay阶段的入参，该如何设置result？可以创建一个Delegate实例。
+
 ```java
 @Test
 public void delegatingInvocationsToACustomDelegate(@Mocked final DependencyAbc anyAbc)
@@ -903,6 +986,8 @@ public void delegatingInvocationsToACustomDelegate(@Mocked final DependencyAbc a
 }
 ```
 The Delegate interface is empty, being used simply to tell JMockit that actual invocations at replay time should be delegated to the "delegate" method in the assigned object. This method can have any name, provided it is the only non-private method in the delegate object. As for the parameters of the delegate method, they should either match the parameters of the recorded method, or there should be none. In any case, the delegate method is allowed to have an additional parameter of type Invocation as its first parameter. (The Invocation object received during replay will provide access to the invoked instance and the actual invocation arguments, along with other abilities.) The return type of a delegate method doesn't have to be the same as the recorded method, although it should be compatible in order to avoid a ClassCastException later.
+
+Delegate接口是空的，仅用来告诉JMockit在replay阶段对mock方法的调用被代理到Delegate实例(赋值给result)的"代理"方法。这个方法可以是任意名称，只要保证它是非private方法。代理方法的参数要么和被记录方法保持一致，要么为空。还有，delegate 方法允许包含一个额外的Invocation类型参数作为第一个参数。(Invocation对象在replay阶段被传入，可以访问调用实例和获取实际调用参数，还有其他功能)代理方法的返回类型可以和记录方法不一致，一般都是一致的，否则会有ClassCastException异常。
 
 Constructors can also be handled through delegate methods. The following example test shows a constructor invocation being delegated to a method which conditionally throws an exception.
 
@@ -925,7 +1010,10 @@ public void delegatingConstructorInvocations(@Mocked Collaborator anyCollaborato
 ### 12. Cascading mocks
 When using complex APIs where functionality is distributed through many different objects, it is not uncommon to see chained invocations of the form obj1.getObj2(...).getYetAnotherObj().doSomething(...). In such cases it may be necessary to mock all objects/classes in the chain, starting with obj1.
 
+有些复杂的API，功能分布在许多不同的对象上，这样的情况并不少见，例如链式调用，obj1.getObj2(...).getYetAnotherObj().doSomething(...)。这种情况下，需要mock从obj1开始链上所有的对象和类。
+
 All three mocking annotations provide this ability. The following test shows a basic example, using the java.net and java.nio APIs.
+
 
 ```java
 @Test
@@ -959,6 +1047,8 @@ public void recordAndVerifyExpectationsOnCascadedMocks(
 }
 ```
 In the test above, calls to eligible methods in the mocked Socket class will return a cascaded mock object whenever they occur during the test. The cascaded mock will allow further cascading, so a null reference will never be obtained from methods which return object references (except for non-eligible return types Object or String which will return null, or collection types which will return a non-mocked empty collection).
+
+不论在测试的什么阶段，调用mock Socket类的相应的方法会返回一个级联的mock对象。级联mock允许更深层次的级联，返回对象的引用绝不会返回null。
 
 Unless there is an available mocked instance from a mock field/parameter (such as cascadedChannel above), a new cascaded instance will get created from the first call to each mocked method. In the example above, the two different methods with the same InetAddress return type will create and return different cascaded instances; the same method will always return the same cascaded instance, though.
 
@@ -1018,7 +1108,11 @@ Above, methods command(...), directory(...), and inheritIO() configure the proce
 ### 13. Partial mocking
 By default, all methods and constructors which can be called on a mocked type and its super-types (except for java.lang.Object) get mocked. This is appropriate for most tests, but in some situations we might need to select only certain methods or constructors to be mocked. Methods/constructors not mocked in an otherwise mocked type will execute normally when called.
 
+一个mock类型默认所有的方法和除了Object的父类方法都被mock。有时需要mock指定的一些方法，没有mock的方法不受影响。
+
 When a class or object is partially mocked, JMockit decides whether to execute the real implementation of a method or constructor as it gets called from the code under test, based on which expectations were recorded and which were not. The following example tests will demonstrate it.
+
+当一个类或者对象部分mock，JMockit依靠期望块中的记录来决定哪些方法要调用真实实现。
 
 ```java
 public class PartialMockingTest
