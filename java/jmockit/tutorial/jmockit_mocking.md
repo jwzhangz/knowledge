@@ -211,7 +211,7 @@ Expectations recorded inside a "new Expectations() {...}" block are the regular 
 
 The API also supports the concept of strict expectations: those that, when recorded, only allow invocations during replay that exactly match the recordings (within explicitly specified allowances, when needed), both in the number of matching invocations (exactly one, by default) and in the order they occur. Invocations that occur during replay but fail to match a recorded strict expectation are regarded as unexpected, causing an immediate "unexpected invocation" error, and consequently failing the test. This is achieved by using the StrictExpectations subclass.
 
-API也支持严格匹配，即在record阶段定义了的expectations，必须和在replay阶段的匹配数量（默认为一次）和调用顺序一致。如果没有严格匹配到strict expectation，则出现错误"unexpected invocation"，测试失败。StrictExpectations类提供这个功能。
+API也支持严格expectation，即replay阶段的调用和record阶段的记录在调用数量上（默认为一次）和调用顺序保持一致。如replay阶段发生的调用没有匹配到严格expectation，则出现错误"unexpected invocation"，测试失败。StrictExpectations类提供这个功能。
 
 Note that in the case of strict expectations, all invocations occurring during replay that match recorded expectations are implicitly verified. Any remaining invocations that don't match an expectation are considered unexpected, causing the test to fail. The test will also fail if any recorded strict expectation is missed, ie, if no matching invocations occur during replay.
 
@@ -906,7 +906,7 @@ public void capturingArgumentsFromSingleInvocation(@Mocked final Collaborator mo
 ```
 The withCapture() method can only be used in verification blocks. Typically, we use it when a single matching invocation is expected to occur; if more than one such invocation occurs, however, the last one to occur overwrites the values captured by previous ones. It is particularly useful with parameters of a complex type (think a JPA @Entity), which may contain several items whose values need to be checked.
 
-withCapture()只能被用在verification块。一般都是用于期望的调用被执行一次的情况，如果调用被多次执行，则只保留最后一个结果。
+withCapture()只能被用在verification块。但如果调用发生多次，则只保留最后一次捕获的参数，所以一般都是用于期望的调用被执行一次的情况。
 
 #### 10.2 Capturing arguments from multiple invocations
 If multiple invocations to a mocked method or constructor are expected, and we want to capture values for all of them, then the withCapture(List) method should be used instead, as in the example below.
@@ -1108,7 +1108,7 @@ Above, methods command(...), directory(...), and inheritIO() configure the proce
 ### 13. Partial mocking
 By default, all methods and constructors which can be called on a mocked type and its super-types (except for java.lang.Object) get mocked. This is appropriate for most tests, but in some situations we might need to select only certain methods or constructors to be mocked. Methods/constructors not mocked in an otherwise mocked type will execute normally when called.
 
-一个mock类型默认所有的方法和除了Object的父类方法都被mock。有时需要mock指定的一些方法，没有mock的方法不受影响。
+一个mock类型默认所有的方法和除了Object的父类方法都被mock。有些场景却需要mock指定的方法或者构造器，没有mock的方法不受影响。
 
 When a class or object is partially mocked, JMockit decides whether to execute the real implementation of a method or constructor as it gets called from the code under test, based on which expectations were recorded and which were not. The following example tests will demonstrate it.
 
@@ -1178,9 +1178,15 @@ public class PartialMockingTest
 ```
 As shown above, the Expectations(Object...) constructor accepts one or more classes or objects to be partially mocked. If a Class object is given, all methods and constructors defined in that class can be mocked, as well as the methods and constructors of its super-classes; all instances of the specified class will be regarded as mocked instances. If, on the other hand, a regular instance is given, then only methods, not constructors, in the class hierarchy can be mocked; even more, only that particular instance will be mocked.
 
+如上所示，Expectations(Object...)的构造器接受一个或多个类或者对象作为参数，并将其部分mock。如果Expectations的参数是class，则该类以及父类中的所有的方法和构造器都能够被mock。并且这个class的所有实例都将被视为被mock的实例。如果Expectations的参数是一个实例，则只有方法能够被mock，不包括构造器，仅限于class层面(应该是不包括父类的意思)，并且只有这个被传入的实例被mock，其他该类的实例没有被mock。
+
 Notice that in these two example tests there is no mock field or mock parameter. The partial mocking constructor effectively provides yet another way to specify mocked types. It also lets us turn objects stored in local variables into mocked instances. Such objects can be created with any amount of state in internal instance fields; they will keep that state when mocked.
 
+注意，这两个例子中没有出现mock field和parameter(就是前面讲过的带@Mocked注解的入参和field)。
+
 It should be noted that, when we request a class or instance to be partially mocked, it can also have invocations verified on it, even if the verified methods/constructors were not recorded. For example, consider the following test.
+
+还需要注意的是，即使将一个class或者实例部分mock，依然可以在invocations中验证它，即使验证的方法或者构造器没有被记录。见下例。
 
 ```java
    @Test
@@ -1201,9 +1207,13 @@ It should be noted that, when we request a class or instance to be partially moc
 ```
 Finally, a simpler way to apply partial mocking to a tested class is to have a field in the test class annotated as both @Tested (see section below) and @Mocked. In this case, the tested object is not passed to the Expectations constructor, but we still need to record expectations on any methods requiring mocked results.
 
+最后，这里有一个简单的mock被测类的方法，在编写测试类时定义一个带 @Tested 和 @Mocked 注解的field，类型是被测类。这种情况下，虽然测试对象并没有作为参数传入Expectations的构造器，但是我们依然需要在expectations块中mock相关的方法。
+
 ***
 ### 14. Capturing implementation classes and instances
 Our discussion of this feature will be based on the (contrived) code below.
+
+基于下面例子进行讨论：
 
 ```java
 public interface Service { int doSomething(); }
@@ -1222,8 +1232,12 @@ public final class TestedUnit
 ```
 The method we want to test, businessOperation(), uses classes that implement a separate interface, Service. One of these implementations is defined through an anonymous inner class, which is completely inaccessible (except for the use of Reflection) from client code.
 
+businessOperation()是我们想要测试的方法。所使用的类实现了service接口。其中的一个实现定义了一个匿名内部类，这在客户代码中是完全不可见的(除非使用反射)。
+
 #### 14.1 Mocking unspecified implementation classes
 Given a base type (be it an interface, an abstract class, or any sort of base class), we can write a test which only knows about the base type but where all implementing/extending implementation classes get mocked. To do so, we declare a "capturing" mocked type which refers only to the known base type. Not only will implementation classes already loaded by the JVM get mocked, but also any additional classes that happen to get loaded by the JVM during later test execution. This ability is activated by the @Capturing annotation, which can be applied to mock fields and mock parameters, as demonstrated below.
+
+对于一个给定的基类(可以是接口，抽象类或者是任何形式的基础类)，我们的测试虽然只声明基类，但是所有的实现或继承类都会被mock。下面例子声明一个 capturing 的基类引用。不仅已经被JVM加载的实现类会被mock，而且在接下来的测试中被JVM加载的该类也会被mock。
 
 ```java
 public final class UnitTest
@@ -1243,8 +1257,12 @@ public final class UnitTest
 ```
 In the test above, two return values are specified for the Service#doSomething() method. This expectation will match all invocations to this method, regardless of the actual instance on which the invocation occurs, and regardless of the actual class implementing the method.
 
+在上面的测试中，为Service#doSomething()方法指定了两个返回值。不论调用发生在哪个实例，也不论实现这个方法的是哪个类，在expectation中定义的两次mock会匹配到实际发生的两次调用。
+
 ### 14.2 Specifying behavior for future instances
 An additional ability related to capturing applies to future instances assignable to the mocked type, and is activated through the "maxInstances" optional attribute. This attribute takes an int value specifying the maximum number of future instances of the mocked type that should be covered by the associated mock field/parameter; when not specified, all assignable instances, both pre-existing and to be created during the test, are covered.
+
+capturing能够设定一个实例的调用次数来mock不同的实例，在声明 @Capturing 时设置可选属性maxInstances。这个属性接受一个int值，设置所声明的当前实例最大捕获次数。如果没有设置这个属性，则所有的实例，包括之前存在的以及在接下来的测试中所创建的实例都将被mock。
 
 The expectations recorded and/or verified on a given capturing mock field or parameter will match invocations to any of the future instances covered by the mock field/parameter. This allows us to record and/or verify different behavior for each set of future instances; for that, we declare two or more capturing mock fields/parameters of the same declared type, each with its own maxInstances value (except perhaps for the last mock field/parameter, which would then cover the remaining future instances).
 
@@ -1279,7 +1297,11 @@ It should be noted that while a capturing mocked type is in scope, all implement
 ### 15. Instantiation and injection of tested classes
 A non-final instance field annotated as @Tested in the test class will be considered for automatic instantiation and injection, just before the execution of a test method. If at this time the field still holds the null reference, an instance will be created using a suitable constructor of the tested class, while making sure its internal dependencies get properly injected (when applicable). If the field has already been initialized (not null), then nothing will be done.
 
+一个声明了@Tested的non-final实例field将会在执行测试方法前自动实例化和注入。如果执行测试前发现field是null，则会调用合适的构造器创建实例，如果field不为null，则什么也不做。
+
 In order to inject mocked instances into the tested object, the test class must also contain one or more mock fields or mock parameters declared to be @Injectable. Mock fields/parameters annotated only with @Mocked or @Capturing are not considered for injection. On the other hand, not all injectable fields/parameters need to have mockable types; they can also have primitive or array types. The following example test class will demonstrate.
+
+想要测试对象自动注入，则需要在测试类中用  @Injectable 注解声明mock field 或者 mock parameter。声明 @Mocked 或者 @Capturing 的field 和 parameter不会自动注入。并不是所有的可注入类型都是可mock的类型，还可以是基础类型和数组。
 
 ```java
 public class SomeTest
