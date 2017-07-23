@@ -55,7 +55,7 @@ There are a few different annotations available for the declaration of mock fiel
 
 下面的章节会详细介绍一些声明mock fields和parameters，以及修改默认mock行为的一些方法。一些常用的注解：
 + @Mocked 有一个可选的属性，在一些特定的场景很有用。
-+ @Injectable 强制被mock的实例方法仅作用于单一的实例。
++ @Injectable 强制被mock的实例方法仅作用于被修饰的实例。
 + @Capturing 将mocking扩展到实现了被mock的interface的类，或者继承一个被mock的class的子类。
 
 当@Injectable or @Capturing应用于mock field或者mock parameter，已经包含了mock的功能，不需要再用@Mocked注解了。
@@ -68,14 +68,14 @@ The mocked instances created by JMockit can be used normally in test code (for t
 ### 2. Expectations
 An expectation represents a set of invocations to a specific mocked method/constructor that is relevant for a given test. An expectation may cover multiple different invocations to the same method or constructor, but it doesn't have to cover all such invocations that occur during the execution of the test. Whether a particular invocation matches a given expectation or not will depend not only on the method/constructor signature but also on runtime aspects such as the instance on which the method is invoked, argument values, and/or the number of invocations already matched. Therefore, several types of matching constraints can (optionally) be specified for a given expectation.
 
-一个expectation代表着一系列的对mock method/constructor的调用。对于同一个方法或构造器，一个expectation可以包含不同的调用。
+一个expectation代表着一系列的对指定的mock method/constructor的调用。在一个expectation中，可以对同一个方法或构造器定义不同的调用。一个调用能否和一个给定的expectation匹配到不仅要看方法签名，还依赖运行时情况，例如这个方法属于哪个实例，参数值，已经产生的调用次数。所以可以为一个expectation设置一些匹配约束。
 
 When we have one or more invocation parameters involved, an exact argument value may be specified for each parameter. For example, the value "test string" could be specified for a String parameter, causing the expectation to match only those invocations with this exact value in the corresponding parameter. As we will see later, instead of specifying exact argument values, we can specify more relaxed constraints which will match whole sets of different argument values.
 
 
 The example below shows an expectation for Dependency#someMethod(int, String), which will match an invocation to this method with the exact argument values as specified. Notice that the expectation itself is specified through an isolated invocation to the mocked method. There are no special API methods involved, as is common in other mocking APIs. This invocation, however, does not count as one of the "real" invocations we are interested in testing. It's only there so that the expectation can be specified.
 
-这是一个Dependency#someMethod(int, String)方法的expectation例子。这个expectation仅匹配指定参数的调用，也就是只有参数为1和"test"时才匹配。
+这是一个Dependency#someMethod(int, String)方法的expectation例子。但这个expectation只能精确匹配参数是1和"test"的调用。
 
 ```java
 @Test
@@ -207,7 +207,7 @@ The fact that anonymous inner classes are used to demarcate blocks of code allow
 ### 4. Regular versus *strict* expectations
 Expectations recorded inside a "new Expectations() {...}" block are the regular ones. What this means is that the invocations they specify are expected to occur at least once during the replay phase; they may occur more than once, though, and in a different order relative to other recorded expectations; additionally, invocations that don't match any recorded expectation are allowed to occur in any number and in any order. If no invocation matches a given recorded expectation, a "missing invocation" error gets thrown at the end of the test, causing it to fail (this is only the default behavior, though, as it can be overridden).
 
-在 new Expectations() {...}中可以定义Expectations，这些记录将在接下来的replay阶段被至少调用一次。调用顺序可以和定义顺序不一致。如果一个expectation没有被调用到，则抛出异常。
+在 new Expectations() {...}中可以定义常规的期望，这些被记录的调用将在接下来的replay阶段被至少调用一次。调用顺序可以和定义顺序不一致。如果任意一个expectation没有被调用到，则抛出异常。
 
 The API also supports the concept of strict expectations: those that, when recorded, only allow invocations during replay that exactly match the recordings (within explicitly specified allowances, when needed), both in the number of matching invocations (exactly one, by default) and in the order they occur. Invocations that occur during replay but fail to match a recorded strict expectation are regarded as unexpected, causing an immediate "unexpected invocation" error, and consequently failing the test. This is achieved by using the StrictExpectations subclass.
 
@@ -219,7 +219,7 @@ Note that in the case of strict expectations, all invocations occurring during r
 
 We can mix expectations of different levels of strictness in the same test by writing multiple expectation blocks, some regular (using Expectations), others strict (using StrictExpectations). Normally, a given mock field or mock parameter will appear in expectation blocks of a single kind, though.
 
-定义多个expectation块，在同一个测试下可以混合使用多种限制级别的expectations。例如，同一个test中定义几个Expectations，几个StrictExpectations。一般的一个mock的field或者parameter以单一种类出现在expectation块中。
+可以在一个test中定义多个不同限制级别的expectation块。例如，同一个test中定义几个Expectations，几个StrictExpectations。一般的一个mock的field或者parameter以单一种类出现在expectation块中。
 
 Most tests will simply make use of "regular" expectations. Usage of strict expectations is probably more a matter of personal preference.
 
@@ -242,7 +242,7 @@ If the test instead needs an exception or error to be thrown when the method is 
 
 Multiple consecutive results (values to return and/or throwables to throw) can be recorded for the same expectation, by simply assigning the result field multiple times in a row. The recording of multiple return values and/or exceptions/errors to be thrown can be freely mixed for the same expectation. In the case of recording multiple consecutive return values for a given expectation, a single call to the returns(Object...) method can be made. Also, a single assignment to the result field will achieve the same effect, if the value assigned to it is a list or array containing the consecutive values.
 
-同一个expectation可以记录多个结果，返回值或者throw异常，只需要在同一行为result多次的赋值。同一个expectation的多个返回值可以自由的混合使用。为result的赋值也可以是一个包含结果的list或数组。
+同一个expectation可以记录多个连续的结果，返回值或者throw异常，只需要在同一行为result多次的赋值。同一个expectation的多个返回值可以自由的混合使用。也可以使用returns(Object...)方法为一个expectation记录连续多次的返回值。为result的赋值也可以是一个包含结果的list或数组。
 
 The following example test records both types of results for the methods of a mocked DependencyAbc class, to be used when they are invoked from a UnitUnderTest class. Lets say the implementation of the class under test goes like this:
 
@@ -301,7 +301,7 @@ This test records three different expectations. The first one, represented by th
 ### 6. Matching invocations to specific instances
 Previously, we explained that an expectation recorded on a mocked instance, such as "abc.someMethod();" would actually match invocations to DependencyAbc#someMethod() on any instance of the mocked DependencyAbc class. In most cases, tested code uses a single instance of a given dependency, so this won't really matter and can be safely ignored, whether the mocked instance is passed into the code under test or created inside it. But what if we need to verify that invocations occur on a specific instance, between several ones that happen to be used in the code under test? Also, what if only one or a few instances of the mocked class should actually be mocked, with other instances of the same class remaining unmocked? (This second case tends to occur more often when classes from the standard Java libraries, or from other third-party libraries, are mocked.) The API provides a mocking annotation, @Injectable, which will only mock one instance of the mocked type, leaving others unaffected. Additionally, we have a couple ways to constrain the matching of expectations to specific @Mocked instances, while still mocking all instances of the mocked class.
 
-之前，我们解释了一个expectation记录了一个mock的实例，实际上在一个mocked DependencyAbc class中，invocations匹配到DependencyAbc#someMethod()。大多数情况下，对于一个给定的依赖，测试代码使用一个单一的实例，所以不必在意mock的实例是传入待测代码还是在代码中创建它。如果需要确认调用发生在哪个实例上。或者一个mock类的一部分实例需要被mock，另一些实例不需要mock。当class来源于Java库或者其他第三方库时，第二个例子是更常见的。API提供了 @Injectable注解，只mock一个mock类型的实例。不影响其他的实例。此外我们还有一些方法约束expectations匹配到指定的Mock实例上。
+之前，我们讲述了在一个mock的实例上记录了一个expectation，例如"abc.someMethod();"实际上会匹配到被mock的DependencyAbc任意的实例的DependencyAbc#someMethod()方法。大多数情况下，对于一个给定的依赖，测试代码使用一个单一的实例，所以不必在意mock的实例是传入待测代码还是在代码中创建它。如果需要确认调用发生在哪个实例上。或者一个mock类的一部分实例需要被mock，另一些实例不需要mock。当class来源于Java库或者其他第三方库时，第二个例子是更常见的。API提供了 @Injectable注解，只mock一个mock类型的实例。不影响其他的实例。此外我们还有一些方法约束expectations匹配到指定的Mock实例上。
 
 #### 6.1 Injectable mocked instances
 Suppose we need to test code which works with multiple instances of a given class, some of which we want to mock. If an instance to be mocked can be passed or injected into the code under test, then we can declare an @Injectable mock field or mock parameter for it. This @Injectable instance will be an "exclusive" mocked instance; any other instance of the same mocked type, unless obtained from a separate mock field/parameter, will remain as a regular, non-mocked instance.

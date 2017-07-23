@@ -107,7 +107,7 @@ Note that mock methods don't need to be public.
 ### 3. Faking an interface
 Most of the time a mock class targets a real class directly. But what if we need a mock object that implements a certain interface, to be passed to code under test? The following example test shows how it is done for the interface javax.security.auth.callback.CallbackHandler.
 
-```java
+``` java
 @Test
 public void fakingAnInterface() throws Exception
 {
@@ -119,7 +119,10 @@ public void fakingAnInterface() throws Exception
       }
    }.getMockInstance();
 
-   callbackHandler.handle(new Callback[] {new NameCallback("Enter name:")});
+   callbackHandler.handle(new Callback[]
+   {
+     new NameCallback("Enter name:");
+   });
 }
 ```
 
