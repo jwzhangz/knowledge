@@ -16,7 +16,7 @@
 [wget下载整个网站，或者目录全部文件](http://www.cnblogs.com/k98091518/p/5830410.html)  
 [Jmockit用户指南中文翻译（未校对）之三](http://leegic.iteye.com/blog/1230937)   
 [JMockit 中捕获 mock 对象方法的调用参数](https://unmi.cc/jmockit-capture-mock-call-arguments/)  
-
+[JMockit Tutorial](https://zhuanlan.zhihu.com/p/24719968)  
 
 
 [宋亮：清华博士告诉你如何挑大学选专业，纯干货！](http://www.guancha.cn/songliang/2017_07_10_417309_s.shtml)  
