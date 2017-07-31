@@ -17,6 +17,7 @@
 [Jmockit用户指南中文翻译（未校对）之三](http://leegic.iteye.com/blog/1230937)   
 [JMockit 中捕获 mock 对象方法的调用参数](https://unmi.cc/jmockit-capture-mock-call-arguments/)  
 [JMockit Tutorial](https://zhuanlan.zhihu.com/p/24719968)  
+[去除多余的Merge branch提交](http://www.codeweblog.com/%E5%8E%BB%E9%99%A4%E5%A4%9A%E4%BD%99%E7%9A%84merge-branch%E6%8F%90%E4%BA%A4/)  
 
 
 [宋亮：清华博士告诉你如何挑大学选专业，纯干货！](http://www.guancha.cn/songliang/2017_07_10_417309_s.shtml)  
