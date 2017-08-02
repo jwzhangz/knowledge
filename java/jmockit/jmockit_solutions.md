@@ -1,0 +1,1 @@
+[java.lang.IllegalArgumentException: Invalid try/finally statement inside expectation block](https://community.atlassian.com/t5/Clover-questions/JMockit-gives-mockit-internal-UnexpectedInvocation-when-I-try-to/qaq-p/314539)  
