@@ -52,3 +52,4 @@ public static final int value = 123;
 + 直接引用（Direct References）：直接引用可以是直接指向目标的指针、相对偏移量或是一个间接定位到目标的句柄。直接引用是和虚拟机实现的内存布局相关的，同一符号引用在不同虚拟机实例上翻译出来的直接引用一般不会相同。如果有了直接引用，那引用的目标必定已经在内存中存在。
 
 虚拟机规范并未规定解析阶段发生的具体时间，只要求了在执行anewarray,checkcast,getfield,getstatic,instanceof,invokedynamic,invokeinterface,invokespecial,invokestatic,invokevirtual,ldc,ldc_w,multianewarray,new,putfield,putstatic这16个用于操作符号引用的字节码指令之前，先对它们所使用的符号引用进行解析。所以虚拟机实现可以根据需要来判断到底是在类被加载器加载时就对常量池中的符号引用进行解析，还是等到一个符号引用将要被使用前才去解析。
+
