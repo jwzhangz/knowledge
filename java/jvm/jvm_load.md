@@ -80,3 +80,12 @@ public static final int value = 123;
 5. 否则，宣告方法查找失败，抛出java.lang.NoSuchMethodError。
 
 如果查找过程成功返回了引用，将会对这个方法进行权限验证，如果发现不具备对方法的访问权限，将抛出java.lang.IllegalAccessError异常。
+
+###### 4. 接口方法解析
+接口方法也需要先解析出接口方法表的class_index项中索引的方法所属的类或接口的符号引用，如果解析成功，依然用C表示这个接口，接下来虚拟机将会按照如下步骤进行后续的接口方法搜索。
+1. 与类方法解析不同，如果在接口方法表中发现class_index中的索引C是个类而不是接口，那就直接抛出java.lang.IncompatibleClassChangeError异常。
+2. 否则，在接口C中查找是否有简单名称和描述符都与目标匹配的方法，如果有则返回这个方法的直接引用，查找结束。
+3. 否则，在接口C的父接口中递归查找，直到java.lang.Object类（包括Object类）为止，看是否有简单名称和描述符都与目标相匹配的方法，如果有则返回这个方法的直接引用，查找结束。
+4. 否则，宣告方法查找失败，抛出java.lang.NoSuchMethodError。
+
+由于接口中所有方法默认是public的，所以不存在访问权限的问题。
