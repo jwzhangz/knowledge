@@ -19,7 +19,8 @@
 [JMockit Tutorial](https://zhuanlan.zhihu.com/p/24719968)  
 [去除多余的Merge branch提交](http://www.codeweblog.com/%E5%8E%BB%E9%99%A4%E5%A4%9A%E4%BD%99%E7%9A%84merge-branch%E6%8F%90%E4%BA%A4/)  
 [Git常用的撤销操作](http://www.netpi.me/uncategorized/gitrevoke/)  
-[ 恢复IDEA中误删的文件](http://blog.csdn.net/boomhankers/article/details/53997083)  
+[恢复IDEA中误删的文件](http://blog.csdn.net/boomhankers/article/details/53997083)  
+[远程执行小工具](http://budairenqin.iteye.com/blog/1788839)  
 
 
 
