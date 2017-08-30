@@ -3,16 +3,41 @@
 
 ### 安装Docker
 
-### 搜索镜像
-> docker search ubuntu
 
-### 下载镜像
-> docker pull ubuntu:latest
+### 常用命令
+###### 搜索镜像
+```
+docker search ubuntu
+```
+
+###### 下载镜像
+```
+docker pull ubuntu:latest
+```
 
 镜像格式为：  
 > 镜像名称:标签  
 latest为下载最新版本，镜像名称中'/'之前为用户名。官方镜像名称中不会又用户名。
 
-### 列出本地镜像
-> docker images
+###### 列出本地镜像
+```
+docker images
+```
 
+###### 查看容器列表
+```
+docker ps -a
+```
+
+###### 启动容器
+```
+docker start dockername
+重启
+docker restart dockername
+```
+
+###### 链接容器
+```
+docker attach dockername
+```
+输入exit或Ctrl+D终止容器。若依次输入Ctrl+P或者Ctrl+Q，则退出容器而不是终止。
