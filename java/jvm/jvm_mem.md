@@ -29,3 +29,37 @@ Mark Word在32位虚拟机和64位虚拟机中分别为32bit和63bit。  
 ##### 对齐填充
 HotSpot的自动内存管理系统要求对象起始地址必须是8字节的整数倍。
 
+***
+## 内存分配与回收策略
+
+如果启动了本地线程分配缓冲，将按线程优先在TLAB上分配。
+
+Serial/Serial Old收集器下的分配回收规则。
+
+**新生代GC(Minor GC)**：发生在新生代的垃圾收集。Java对象大多数都朝生夕灭。Minor GC比较频繁，速度也比较快。
+
+**老年代GC(Major GC/Full GC)**：老年代GC，Major GC经常伴随至少一次Minor GC(非绝对，Parallel Scavenge收集器的策略里就有直接进行Major GC的策略选择过程)。Major GC一般比Minor GC慢10倍以上。
+
+```
+-XX:+PrintGCDetails      参数则可以打印详细GC信息至控制台
+-XX:+PrintGCDateStamps   则可以记录GC发生的详细时间
+加入 -Xloggc:/home/XX/gc/app_gc.log 可以把GC输出至文件
+```
+
+
+###### 对象优先在Eden上分配
+大多数情况下，对象在新生代Eden区中分配。当Eden区没有足够空间时，虚拟机将发起一次MinorGC。
+
+###### 大对象直接进入老年代
+大对象指需要连续内存空间的Java对象，最典型的就是很长的字符串以及数组。所以程序中尽量不要出现这种情况。
+
+Serial和ParNew收集器可以设置 -XX:PretenureSizeThreshold 参数，大于这个值的对象直接在老年代分配。
+
+###### 长期存活的对象将进入老年代
+每个对象都有一个对象年龄计数器。如果对象在Eden出生并经过第一次Minor GC后仍然存活，并且能被Survivor容纳，将被移动到Survivor中，对象年龄设为1。此后该对象每熬过一次Minor GC，年龄就增加1岁。当年龄增加到一定程度(默认为15)，就会被晋升到老年代中。通过 -XX:MaxTenuringThreshold 设置晋升老年代年龄阈值。
+
+###### 动态对象年龄判定
+为了能更好的适应不同程度的内存状况，虚拟机并不是永远的要求对象年龄必须达到MaxTenuringThreshold才能晋升老年代，如果在Survivor空间中相同年龄所有对象大小的总和大于Survivor空间的一半，年龄大于或等于该年龄的对象就可以直接进入老年代。
+
+###### 空间分配担保
+当出现大量对象在Minor GC后仍然存活的情况，Survivor无法容纳的对象直接进入老年代。
