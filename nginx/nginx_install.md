@@ -18,3 +18,14 @@ net.ipv4.tcp_syncookies = 1
 net.ipv4.tcp_max_syn_backlog = 1024
 ```
 执行sysctl -p 命令使参数生效。
+ 
+下载Nginx源码：
+```
+http://nginx.org/en/download.html
+```
+安装
+```
+tar -zxvf nginx-1.12.1.tar.gz
+ 
+安装
+./configure
