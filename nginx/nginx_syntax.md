@@ -142,3 +142,36 @@ accept_mutex [on|off]
 默认：accept_mutex on;
 ```
 accept_mutex是Nginx的负载均衡锁。
+
+###### 使用accept锁后到真正建立连接之间的延迟时间
+```
+accept_mutex_delay Nms;
+默认： accept_mutex_delay 500ms;
+```
+同一时间只有一个worker进程能够取到accept锁。不是阻塞锁，取不到会立刻返回。如果一个worker进程没有获取到accept锁，则需要等至少accept_mutex_delay时间后才能再次试图获取锁。
+
+###### 批量建立新连接
+```
+multi_accept [on|off]
+默认： multi_accept off;
+```
+当事件模型通知有新连接时，尽可能对本次调度中客户端发起的所有TCP请求都建立连接。
+
+###### 选择事件模型
+```
+use [kqueue|rtsig|epoll|/dev/poll|select|poll|eventport];
+默认： Nginx会自动使用最合适的事件模型。
+```
+
+###### 每个worker的最大连接数
+```
+worker_connections number;
+```
+定义每个worker进程可以同时处理的最大连接数。
+
+***
+# 配置一个静态Web服务器
+
+静态Web服务器的主要功能由ngx_http_core_module模块实现。
+
+一个典型的静态Web服务器还会包含多个server块和location块，
