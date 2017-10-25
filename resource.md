@@ -20,3 +20,8 @@
 
 
 [宋亮：清华博士告诉你如何挑大学选专业，纯干货！](http://www.guancha.cn/songliang/2017_07_10_417309_s.shtml)  
+
+### 临时保存
+
+[神户钢铁：揭开日本制造皇帝的新衣](http://www.guancha.cn/ChenXingGe/2017_10_25_432158_1.shtml)
+
