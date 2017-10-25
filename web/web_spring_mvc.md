@@ -1,3 +1,5 @@
+[SpringMVC DispatcherServlet初始化过程](http://blog.csdn.net/tiantiandjava/article/details/47663853)
+
 在Servlet3.0环境中，容器会在类路径中查找实现javax.servlet.ServletContainerInitializer的类，如果发现已有实现类，就会调用该类配置Servlet容器。在Spring中，org.springframework.web.SpringServletContainerInitializer 实现了该接口，这个类会查找实现了 org.springframework.web.WebApplicationInitializer 的类，调用 onStartup() 方法配置servlet容器，将 DispatcherServlet 注册到servlet上下文中。
 
 DispatcherServlet 类的 doDispatch 方法为 request 匹配处理方法。
@@ -66,3 +68,28 @@ for (WebApplicationInitializer initializer : initializers) {
 }
 ```
 
+WebApplicationInitializer 子类的 onStartup() 方法注册 DispatcherServlet 。
+
+![](http://img.blog.csdn.net/20150814163251144?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
+
+##### 初始化 DispatcherServlet
+Servlet 容器调用 Servlet 接口的 init(ServletConfig config) 方法。
+
+FrameworkServlet 类的方法 initWebApplicationContext() 初始化 webApplicationContext 。
+```java
+protected WebApplicationContext initWebApplicationContext() {
+```
+
+```java
+public void setContextClass(Class<?> contextClass)
+```
+设置 WebApplicationContext 的类型，也就是实现的子类。这个类会在 createWebApplicationContext() 方法中被创建。
+
+```
+contextConfigLocation 变量的说明
+ * <p>Passes a "contextConfigLocation" servlet init-param to the context instance,
+ * parsing it into potentially multiple file paths which can be separated by any
+ * number of commas and spaces, like "test-servlet.xml, myServlet.xml".
+ * If not explicitly specified, the context implementation is supposed to build a
+ * default location from the namespace of the servlet.
+ ```
