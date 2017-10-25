@@ -41,4 +41,7 @@ public class SpringServletContainerInitializer implements ServletContainerInitia
 		  }
   }
 }
+
+org.springframework.boot.context.web.SpringBootServletInitializer 实现了接口 WebApplicationInitializer
+
 ```
