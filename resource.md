@@ -25,3 +25,4 @@
 
 [神户钢铁：揭开日本制造皇帝的新衣](http://www.guancha.cn/ChenXingGe/2017_10_25_432158_1.shtml)
 
+[侠客岛：十九大上中央再提对香港的“全面管治权” 意味深长](http://www.guancha.cn/local/2017_10_24_432009.shtml)
