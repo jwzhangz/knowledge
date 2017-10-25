@@ -45,3 +45,24 @@ public class SpringServletContainerInitializer implements ServletContainerInitia
 org.springframework.boot.context.web.SpringBootServletInitializer 实现了接口 WebApplicationInitializer
 
 ```
+
+搜索实现了 javax.servlet.ServletContainerInitializer 的类。 org.springframework.web.SpringServletContainerInitializer 实现了该接口。@HandlesTypes 注解声明实现了 WebApplicationInitializer.class 接口的类会被作为参数传入 onStartup() 方法。
+
+```java
+@HandlesTypes(WebApplicationInitializer.class)
+public class SpringServletContainerInitializer implements ServletContainerInitializer {
+    @Override
+    public void onStartup(Set<Class<?>> webAppInitializerClasses, ServletContext servletContext)
+        throws ServletException {
+}
+```
+
+如果参数 webAppInitializerClasses set 中的类不是接口且不是抽象类，并且是 WebApplicationInitializer 类或其子类，创建实例，加入初始化队列。
+
+依次调用初始化队列中的 WebApplicationInitializer 子类的 onStartup() 方法。
+```java
+for (WebApplicationInitializer initializer : initializers) {
+    initializer.onStartup(servletContext);
+}
+```
+
