@@ -1,5 +1,7 @@
 [SpringMVC DispatcherServlet初始化过程](http://blog.csdn.net/tiantiandjava/article/details/47663853)
 
+[Spring 源码解析之HandlerMapping源码解析(一)](http://blog.csdn.net/king_is_everyone/article/details/51446260)
+
 在Servlet3.0环境中，容器会在类路径中查找实现javax.servlet.ServletContainerInitializer的类，如果发现已有实现类，就会调用该类配置Servlet容器。在Spring中，org.springframework.web.SpringServletContainerInitializer 实现了该接口，这个类会查找实现了 org.springframework.web.WebApplicationInitializer 的类，调用 onStartup() 方法配置servlet容器，将 DispatcherServlet 注册到servlet上下文中。
 
 DispatcherServlet 类的 doDispatch 方法为 request 匹配处理方法。
