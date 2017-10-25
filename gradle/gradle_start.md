@@ -1,6 +1,8 @@
 [Gradle 完整指南（Android）](http://www.jianshu.com/p/9df3c3b6067a)  
 
-[Gradle学习系列之一——Gradle快速入门](http://www.cnblogs.com/CloudTeng/p/3417762.html)
+[Gradle学习系列之一——Gradle快速入门](http://www.cnblogs.com/CloudTeng/p/3417762.html)  
+
+[https://gradle.org/guides/](https://gradle.org/guides/)
 
 ### 安装
 
