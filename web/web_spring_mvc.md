@@ -4,8 +4,6 @@
 
 [Spring framework4.2.1源码构建为Intellij项目](http://bsr1983.iteye.com/blog/2234984)
 
-[intellij idea搭建spring源码阅读环境](http://blog.csdn.net/sw277378347/article/details/44978493)
-
 [Spring源码解析——如何阅读源码](http://www.cnblogs.com/xing901022/p/4178963.html)
 
 在Servlet3.0环境中，容器会在类路径中查找实现javax.servlet.ServletContainerInitializer的类，如果发现已有实现类，就会调用该类配置Servlet容器。在Spring中，org.springframework.web.SpringServletContainerInitializer 实现了该接口，这个类会查找实现了 org.springframework.web.WebApplicationInitializer 的类，调用 onStartup() 方法配置servlet容器，将 DispatcherServlet 注册到servlet上下文中。
