@@ -102,3 +102,38 @@ contextConfigLocation 变量的说明
  * If not explicitly specified, the context implementation is supposed to build a
  * default location from the namespace of the servlet.
  ```
+
+调用 initStrategies 方法，进行一系列初始化。
+```java
+protected void initStrategies(ApplicationContext context) {
+	initMultipartResolver(context);
+	initLocaleResolver(context);
+	initThemeResolver(context);
+	initHandlerMappings(context);
+	initHandlerAdapters(context);
+	initHandlerExceptionResolvers(context);
+	initRequestToViewNameTranslator(context);
+	initViewResolvers(context);
+	initFlashMapManager(context);
+}
+```
+
+```java
+initStrategies(ApplicationContext context)
+context = AnnotationConfigWebApplicationContext
+
+private void initHandlerMappings(ApplicationContext context) {
+  this.handlerMappings = null
+  this.detectAllHandlerMappings = true
+  //这些 HandlerMapping 是从哪里注册过来的？
+  this.handlerMappings = {
+    [0]	RequestMappingHandlerMapping  (id=243)	
+    [1]	WebMvcConfigurationSupport$EmptyHandlerMapping  (id=264)	
+    [2]	BeanNameUrlHandlerMapping  (id=233)	
+    [3]	WebMvcConfigurationSupport$EmptyHandlerMapping  (id=266)	
+    [4]	WebMvcConfigurationSupport$EmptyHandlerMapping  (id=267)}
+  this.handlerAdapters = {
+    [0]	RequestMappingHandlerAdapter  (id=187)	
+    [1]	HttpRequestHandlerAdapter  (id=190)	
+    [2]	SimpleControllerHandlerAdapter  (id=149)	}
+```
