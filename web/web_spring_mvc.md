@@ -1,3 +1,5 @@
+[使用Spring Tool Suite(STS)和Maven建立的Spring mvc 项目](http://blog.csdn.net/zoubf/article/details/50384756)  
+
 [SpringMVC DispatcherServlet初始化过程](http://blog.csdn.net/tiantiandjava/article/details/47663853)
 
 [Spring 源码解析之HandlerMapping源码解析(一)](http://blog.csdn.net/king_is_everyone/article/details/51446260)
