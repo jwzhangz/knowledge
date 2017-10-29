@@ -1,3 +1,4 @@
+# STS 配置
 ### STS配置tomcat
 ###### 安装 tomcat
 下载并解压 tomcat 压缩包。
@@ -9,4 +10,7 @@
 
 在Preference页面，搜索框输入runtime，选择 Server -> Runtime Environments.点击 Add ，弹出对话框中选择 Apache Tomcat v9.0 。选中 Create a new local server。
 
-![images/sts_add_tomcat](images\sts_add_tomcat.png)
+![images/sts_add_tomcat](images/sts_add_tomcat.png)
+
+
+### web 部署路径
