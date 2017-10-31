@@ -139,3 +139,53 @@ private void initHandlerMappings(ApplicationContext context) {
     [1]	HttpRequestHandlerAdapter  (id=190)	
     [2]	SimpleControllerHandlerAdapter  (id=149)	}
 ```
+
+```java
+private void initHandlerAdapters(ApplicationContext context) {
+
+[0]	RequestMappingHandlerAdapter  (id=176)	
+[1]	HttpRequestHandlerAdapter  (id=179)	
+[2]	SimpleControllerHandlerAdapter  (id=184)	
+```
+
+doDispatch 流程
+```java
+//获取 HandlerExecutionChain
+mappedHandler = getHandler(processedRequest);
+
+实时变量的值：
+mappedHandler	HandlerExecutionChain  (id=272)	
+	handler	HandlerMethod  (id=275)	
+		bean	HelloController  (id=283)	
+		beanFactory	AnnotationConfigWebApplicationContext  (id=71)	
+		bridgedMethod	Method  (id=285)	
+		logger	SLF4JLocationAwareLog  (id=287)	
+		method	Method  (id=285)	
+		parameters	MethodParameter[0]  (id=292)	
+interceptorList	ArrayList<E>  (id=277)	
+	elementData	Object[10]  (id=297)	
+		[0]	ConversionServiceExposingInterceptor  (id=299)	
+		[1]	ResourceUrlProviderExposingInterceptor  (id=302)	
+		[2]	null	
+// 获取HandlerAdapter
+HandlerAdapter ha = getHandlerAdapter(mappedHandler.getHandler());
+
+// 调用 Controller方法
+mv = ha.handle(processedRequest, response, mappedHandler.getHandler());
+
+调用栈：
+HelloController.hello() line: 11	
+NativeMethodAccessorImpl.invoke0(Method, Object, Object[]) line: not available [native method]	
+NativeMethodAccessorImpl.invoke(Object, Object[]) line: 62	
+DelegatingMethodAccessorImpl.invoke(Object, Object[]) line: 43	
+Method.invoke(Object, Object...) line: 497	
+ServletInvocableHandlerMethod(InvocableHandlerMethod).doInvoke(Object...) line: 221	
+ServletInvocableHandlerMethod(InvocableHandlerMethod).invokeForRequest(NativeWebRequest, ModelAndViewContainer, Object...) line: 137	
+ServletInvocableHandlerMethod.invokeAndHandle(ServletWebRequest, ModelAndViewContainer, Object...) line: 110	
+RequestMappingHandlerAdapter.invokeHandleMethod(HttpServletRequest, HttpServletResponse, HandlerMethod) line: 777	
+RequestMappingHandlerAdapter.handleInternal(HttpServletRequest, HttpServletResponse, HandlerMethod) line: 706	
+RequestMappingHandlerAdapter(AbstractHandlerMethodAdapter).handle(HttpServletRequest, HttpServletResponse, Object) line: 85	
+DispatcherServlet.doDispatch(HttpServletRequest, HttpServletResponse) line: 943	
+DispatcherServlet.doService(HttpServletRequest, HttpServletResponse) line: 877	
+
+```
