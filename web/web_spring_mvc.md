@@ -153,6 +153,21 @@ doDispatch 流程
 //获取 HandlerExecutionChain
 mappedHandler = getHandler(processedRequest);
 
+    protected HandlerExecutionChain getHandler(HttpServletRequest request) throws Exception {
+        for (HandlerMapping hm : this.handlerMappings) {
+            HandlerExecutionChain handler = hm.getHandler(request);
+
+// 
+protected HandlerMethod getHandlerInternal(HttpServletRequest request)
+{
+  String lookupPath = getUrlPathHelper().getLookupPathForRequest(request);
+  lookupPath	"/index" (id=2392)	
+  HandlerMethod handlerMethod = lookupHandlerMethod(lookupPath, request);
+}
+
+获取 HandlerExecutionChain
+protected HandlerExecutionChain getHandlerExecutionChain(Object handler, HttpServletRequest request) {
+
 实时变量的值：
 mappedHandler	HandlerExecutionChain  (id=272)	
 	handler	HandlerMethod  (id=275)	
