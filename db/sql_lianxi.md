@@ -170,3 +170,11 @@ WHERE prod_name LIKE '%bean bag%';
 
 ## 计算字段
 
+从 Vendors 表中获取 vend_name,vend_country,  拼接成如下形式 vend_name(vend_country), 例如 Bear Emporium(USA), 新字段名称为 vend_title。
+
+```
+SELECT Concat (vend_name, ' (', vend_country , ')')
+AS  vend_title
+FROM Vendors
+ORDER BY vend_name;
+```
