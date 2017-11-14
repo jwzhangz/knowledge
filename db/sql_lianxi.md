@@ -178,3 +178,73 @@ AS  vend_title
 FROM Vendors
 ORDER BY vend_name;
 ```
+
+1. 从 OrderItems 表中获取 prod_id, quantity, item_price ，条件 order_num = 20008 。 2. 检索上述列并计算总价 expanded_price 。
+```
+SELECT prod_id, quantity , item_price
+FROM OrderItems
+WHERE order_num = 20008;
+
+SELECT prod_id,
+quantity ,
+item_price,
+quantity * item_price AS expanded_price
+FROM OrderItems
+WHERE order_num = 20008;
+```
+
+## 函数
+
+从 Vendors 表中获取 vend_name ,并且输出大写的版本,按名称排序。
+
+```
+SELECT vend_name, UPPER(vend_name) AS vend_name_upcase
+FROM Vendors
+ORDER BY vend_name;
+```
+
+从 Orders 表中获取 order_num ，只获取2012年的记录
+
+```
+SELECT order_num
+FROM Orders
+WHERE YEAR(order_date) = 2012;
+```
+
+## 汇总数据
+
+AVG()返回Products表中所有产品的平均价格。
+
+```
+SELECT AVG (prod_price) AS avg_price
+FROM Products;
+```
+
+返回Products表中所有供应商(vend_id)为 DLL01 的产品的平均价格
+
+```
+SELECT AVG(prod_price) AS  avg_price
+FROM Products
+WHERE vend_id = 'DLL01';
+```
+
+统计表 Customers 中行的总数。包括NULL。
+
+```
+SELECT COUNT(*) AS num_cust
+FROM Customers;
+```
+
+统计表 Customers 中行的总数。只统计具有电子邮件地址(cust_email)的客户。
+
+```
+SELECT COUNT(cust_email) AS num_cust
+FROM Customers;
+```
+
+统计表 Products 中 prod_price 列中的最大值。
+
+```
+SELECT MAX(prod_price) AS max_price
+FROM Products;
+```
