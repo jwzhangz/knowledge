@@ -248,3 +248,48 @@ FROM Customers;
 SELECT MAX(prod_price) AS max_price
 FROM Products;
 ```
+
+表 OrderItems 包含订单中实际的物品，每个物品有相应的数量。检索order_num = 20005的所订购物品的总数（所有quantity值之和）
+
+```
+SELECT SUM(quantity ) AS items_ordered
+FROM OrderItems
+WHERE order_num = 20005;
+```
+
+表 OrderItems 中，合计每项物品的总价 item_price * quantity，得出订单号 order_num = 20005 的每个物品的总金额。
+
+```
+SELECT item_price* quantity AS  total_price
+FROM OrderItems
+WHERE order_num = 20005;
+```
+
+表 OrderItems 中，合计每项物品的总价 item_price * quantity，得出订单号 order_num = 20005 总的金额。
+
+```
+SELECT SUM(item_price* quantity ) AS  total_price
+FROM OrderItems
+WHERE order_num = 20005;
+```
+
+统计表 Products 中供应商 vend_id = DLL01 提供的产品的平均价格，只统计不同的价格。
+
+```
+SELECT AVG (DISTINCT prod_price) AS avg_price
+FROM Products
+WHERE vend_id = 'DLL01';
+```
+
+统计表 Products 中所有产品数量 num_items ，最低价格 price_min ，最高价格 price_max ，平均价格 price_avg 。
+
+```
+SELECT COUNT(*) AS num_items,
+MIN(prod_price) AS price_min,
+MAX(prod_price) AS price_max ,
+AVG(prod_price) AS price_avg
+FROM Products;
+```
+
+## 分组数据
+
