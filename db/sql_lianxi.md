@@ -4,7 +4,7 @@
 
 ```
 SELECT prod_name
-FROM Product s;
+FROM Products;
 ```
 
 从Products表中检索下面的列：prod_id, prod_name, prod_price
@@ -12,21 +12,21 @@ FROM Product s;
 
 ```
 SELECT prod_id, prod_name, prod_price
-FROM Product s;
+FROM Products;
 ```
 
 检索所有列
 
 ```
 SELECT *
-FROM Product s;
+FROM Products;
 ```
 
 检索vend_id,只返回不同的值
 
 ```
 SELECT DISTINCT vend_id
-FROM Product s;
+FROM Products;
 ```
 
 ###### 注释
@@ -95,11 +95,11 @@ WHERE prod_price BETWEEN  5 AND 10;
 ```
 SELECT prod_name
 FROM Products
-WHERE prod_price IS  NULL;
+WHERE prod_price IS NULL;
 
 SELECT cust_name
 FROM CUSTOMERS
-WHERE cust_email IS  NULL;
+WHERE cust_email IS NULL;
 ```
 
 从 Products 表中检索 prod_id, prod_price, prod_name ， vend_id 为 DLL01 并且 prod_price <= 4。
