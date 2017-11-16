@@ -293,3 +293,48 @@ FROM Products;
 
 ## 分组数据
 
+检索 vend_id 和每个供应商提供的产品数量。
+
+```
+SELECT vend_id, COUNT(*) AS num_prods
+FROM Products
+GROUP BY vend_id;
+```
+
+从 Orders 表中检索 cust_id, 每个 cust_id 的订单数量。
+
+```
+SELECT vend_id, COUNT(*) AS num_prods
+FROM Products
+GROUP BY vend_id;
+```
+
+从 Orders 表中检索 cust_id, 订单数量大于等于2的 cust_id 的订单数量。
+
+```
+SELECT cust_id, COUNT(*) AS orders
+FROM Orders
+GROUPBY cust_id
+HAVING  COUNT(*) >= 2;
+```
+
+从表 Products 中，列出具有两个以上产品且其价格大于等于4的供应商。
+
+```
+SELECT vend_id, COUNT(*) AS num_prods
+FROM Products
+WHERE prod_price >= 4
+GROUP BY vend_id
+HAVING COUNT(*) >= 2;
+```
+
+从表 OrderItems 中按订单号（order_num列）分组数据,返回每个订单中的物品数目 items，只返回三个或更多物品的订单。按照 items,order_num 排序输出。
+
+```
+SELECT order_num, COUNT(*) AS items
+FROM OrderItems
+GROUP BY order_num
+HAVING  COUNT(*) >= 3
+ORDER BY items,order_num;
+```
+
