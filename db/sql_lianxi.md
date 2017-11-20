@@ -338,3 +338,54 @@ HAVING  COUNT(*) >= 3
 ORDER BY items,order_num;
 ```
 
+## 子查询
+
+先从 OrderItems 中检索产品id(prod_id) 为 RGAN01 的订单号(order_num)，通过订单号在表 Orders 中检索用户 cust_id。使用子查询。
+
+```
+SELECT cust_id
+FROM Orders
+WHERE order_num IN  (SELECT order_num
+    FROM OrderItems
+    WHERE prod_id = 'RGAN01');
+```
+
+从 Customers 表中检索顾客列表；对于检索出的每个顾客，统计其在 Orders 表中的订单数目。 检索列 cust_name , cust_state ,  订单数量。
+
+```
+SELECT cust_name,
+  cust_state,
+  (SELECT COUNT(*)
+  FROM Orders
+  WHERE Orders.cust_id = Customers.cust_id) AS orders
+FROM Customers
+ORDER BY cust_name;
+```
+
+## 联结表
+
+使用联结，检索 Vendors ， Products 表中的列 vend_name, prod_name, prod_price 。
+
+```
+SELECT vend_name, prod_name, prod_price
+FROM Vendors, Products
+WHERE Vendors.vend_id = Products.vend_id;
+```
+
+使用内联结完成上面习题。
+
+```
+SELECT vend_name, prod_name, prod_price
+FROM Vendors INNER JOIN Products
+ON Vendors.vend_id = Products.vend_id;
+```
+
+检索 prod_name, vend_name, prod_price, quantity ，order_num = 20007 
+
+```
+SELECT prod_name, vend_name, prod_price, quantity
+FROM OrderItems, Products, Vendors
+WHERE Products.vend_id = Vendors.vend_id
+AND OrderItems.prod_id = Products.prod_id
+AND order_num = 20007;
+```
