@@ -398,6 +398,9 @@ AND order_num = 20007;
 什么是自然联结？  
 标准的联结（前一课中介绍的内联结）返回所有数据，相同的列甚至多次出现。自然联结排除多次出现，使每一列只返回一次。
 
+什么是外联结？  
+许多联结将一个表中的行与另一个表中的行相关联，但有时候需要包含没有关联行的那些行。
+
 假如要给与 Jim Jones 同一公司的所有顾客发送一封信件。这个查询要求首先找出 Jim Jones工作的公司，然后找出在该公司工作的顾客 cust_id, cust_name, cust_contact。使用子查询和自联结两种方法。
 
 ```
@@ -411,4 +414,31 @@ SELECT c1.cust_id, c1.cust_name, c1.cust_contact
 FROM Customers AS c1, Customers AS c2
 WHERE c1.cust_name = c2.cust_name
 AND c2.cust_contact = 'Jim Jones';
+```
+
+用自然联结检索 Customers,Orders,OrderItems 的所有列。
+
+```
+SELECTC.*, O.order_num, O.order_date,
+  OI.prod_id, OI.quantity, OI.item_price
+FROM Customers AS C, Orders AS O, OrderItems AS OI
+WHERE C.cust_id = O.cust_id
+AND OI.order_num = O.order_num
+AND prod_id = 'RGAN01';
+```
+
+从表 Customers,Orders 中检索所有顾客及每个顾客所下的订单数。
+
+```
+SELECT Customers.cust_id,
+COUNT(Orders.order_num) AS num_ord
+FROM Customers INNER JOIN Orders
+ON Customers.cust_id = Orders.cust_id
+GROUP BY Customers.cust_id;
+
+SELECT Customers.cust_id,
+COUNT(Orders.order_num) AS num_ord
+FROM Customers LEFT OUTER JOIN Orders
+ON Customers.cust_id = Orders.cust_id
+GROUP BY Customers.cust_id;
 ```
