@@ -391,3 +391,24 @@ WHERE Products.vend_id = Vendors.vend_id
 AND OrderItems.prod_id = Products.prod_id
 AND order_num = 20007;
 ```
+
+什么是内联结？  
+等值联结（equijoin），它基于两个表之间的相等测试。这种联结也称为内联结（inner join）。
+
+什么是自然联结？  
+标准的联结（前一课中介绍的内联结）返回所有数据，相同的列甚至多次出现。自然联结排除多次出现，使每一列只返回一次。
+
+假如要给与 Jim Jones 同一公司的所有顾客发送一封信件。这个查询要求首先找出 Jim Jones工作的公司，然后找出在该公司工作的顾客 cust_id, cust_name, cust_contact。使用子查询和自联结两种方法。
+
+```
+SELECT cust_id, cust_name, cust_contact
+FROM Customers
+WHERE cust_name = (SELECT cust_name
+FROM Customers
+WHERE cust_contact = 'Jim Jones');
+
+SELECT c1.cust_id, c1.cust_name, c1.cust_contact
+FROM Customers AS c1, Customers AS c2
+WHERE c1.cust_name = c2.cust_name
+AND c2.cust_contact = 'Jim Jones';
+```
