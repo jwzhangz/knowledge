@@ -427,7 +427,7 @@ AND OI.order_num = O.order_num
 AND prod_id = 'RGAN01';
 ```
 
-从表 Customers,Orders 中检索所有顾客及每个顾客所下的订单数。
+从表 Customers,Orders 中检索所有顾客及每个顾客所下的订单数。分别使用内联结和外联结。
 
 ```
 SELECT Customers.cust_id,
