@@ -380,6 +380,8 @@ FROM Vendors INNER JOIN Products
 ON Vendors.vend_id = Products.vend_id;
 ```
 
+显示订单20007中的物品( prod_name, vend_name, prod_price, quantity )。订单物品存储在OrderItems表中。
+
 检索 prod_name, vend_name, prod_price, quantity ，order_num = 20007 
 
 ```
