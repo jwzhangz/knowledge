@@ -495,3 +495,65 @@ NULL ,
 NULL);
 ```
 
+以更安全的方式改写上例。
+
+```
+INSERT INTO Customers(
+  cust_id,
+  cust_name,
+  cust_address,
+  cust_city,
+  cust_state,
+  cust_zip,
+  cust_country,
+  cust_contact,
+  cust_email)
+VALUES ('1000000006',
+'Toy Land',
+'123 Any Street',
+'New York',
+'NY',
+'11111',
+'USA',
+NULL ,
+NULL);
+```
+
+另一表中的顾客列合并到 Customers 表中。使用 INSERT SELECT 。
+
+```
+INSERT INTO Customers(cust_id,
+    cust_contact,
+    cust_email,
+    cust_name,
+    cust_address,
+    cust_city,
+    cust_state,
+    cust_zip,
+    cust_country)
+SELECT cust_id,
+    cust_contact,
+    cust_email,
+    cust_name,
+    cust_address,
+    cust_city,
+    cust_state,
+    cust_zip,
+    cust_country
+FROM CustNew;
+```
+
+SELECT 语句创建一个名为 CustCopy 的新表，并把 Customers 表的整个内容复制到新表中。
+
+```
+SELECT *
+INTO CustCopy
+FROM Customers;
+
+CREATE TABLE CustCopy AS
+SELECT * FROM Customers;
+```
+
+## 更新和删除数据
+
+
