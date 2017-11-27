@@ -442,3 +442,56 @@ FROM Customers LEFT OUTER JOIN Orders
 ON Customers.cust_id = Orders.cust_id
 GROUP BY Customers.cust_id;
 ```
+
+
+## 组合查询
+
+假如需要 Illinois、Indiana 和 Michigan ('IL','IN','MI')等美国几个州的所有顾客的报表，还想包括不管位于哪个州的所有的 Fun4All 。  
+检索 cust_name, cust_contact , cust_email 。
+
+```
+SELECT cust_name, cust_contact , cust_email
+FROM Customers
+WHERE cust_state IN ('IL','IN','MI')
+UNION
+SELECT cust_name, cust_contact , cust_email
+FROM Customers
+WHERE cust_name = 'Fun4All';
+
+使用 WHERE 子句
+SELECT cust_name, cust_contact , cust_email
+FROM Customers
+WHERE cust_state IN  ('IL','IN','MI')
+OR cust_name = 'Fun4All';
+```
+
+上面的练习使用 cust_name, cust_contact 排序
+
+```
+SELECT cust_name, cust_contact , cust_email
+FROM Customers
+WHERE cust_state IN ('IL','IN','MI')
+UNION
+SELECT cust_name, cust_contact , cust_email
+FROM Customers
+WHERE cust_name = 'Fun4All'
+ORDER BY cust_name, cust_contact;
+```
+
+## 插入数据
+
+在 Customers 表中插入一行， 值为 '1000000006', 'Toy Land', '123 Any Street', 'New York', 'NY', '11111', 'USA', NULL, NULL。
+
+```
+INSERT INTO Customers
+VALUES ('1000000006',
+'Toy Land',
+'123 Any Street',
+'New York',
+'NY',
+'11111',
+'USA',
+NULL ,
+NULL);
+```
+
