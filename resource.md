@@ -26,3 +26,10 @@
 [神户钢铁：揭开日本制造皇帝的新衣](http://www.guancha.cn/ChenXingGe/2017_10_25_432158_1.shtml)
 
 [侠客岛：十九大上中央再提对香港的“全面管治权” 意味深长](http://www.guancha.cn/local/2017_10_24_432009.shtml)
+
+
+***
+### 问题
+什么是 rootfs？  
+[rootfs]（http://blog.csdn.net/liuqingsongmsdn2014/article/details/54631007）  
+[linux文件系统初始化过程(2)---挂载rootfs文件系统](http://blog.csdn.net/luomoweilan/article/details/17894473)
