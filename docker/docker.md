@@ -41,3 +41,20 @@ docker restart dockername
 docker attach dockername
 ```
 输入exit或Ctrl+D终止容器。若依次输入Ctrl+P或者Ctrl+Q，则退出容器而不是终止。
+
+
+***
+```
+bridge
+docker0  
+br-xxxxxxxx
+
+bridge
+my_net
+```
+
+网关在网桥上 
+
+容器的网卡 挂在bridge上  
+创建网络my_net是创建一个名字为my_net的网络，并在linux系统上创建一个bridge  
+创建使用my_net的容器，在容器中创建一个网卡，并连接到my_net对应的bridge上
