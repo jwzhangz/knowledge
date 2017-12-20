@@ -18,6 +18,7 @@
 [JMockit 中捕获 mock 对象方法的调用参数](https://unmi.cc/jmockit-capture-mock-call-arguments/)  
 
 
+[API 设计](http://www4.in.tum.de/~blanchet/api-design.pdf)
 
 [宋亮：清华博士告诉你如何挑大学选专业，纯干货！](http://www.guancha.cn/songliang/2017_07_10_417309_s.shtml)  
 
