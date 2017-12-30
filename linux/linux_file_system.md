@@ -29,6 +29,11 @@ inode的成员分为两类：
 
 传统上文件描述符在内核中足以标识一个文件。由于多命名空间和容器的引入，多个文件的描述符可以具有相同值。数据结构struct file唯一表示一个文件。
 
+ 
+谁来创建super block，什么时候创建？super block对应着一个挂载点。
+ 
+文件系统装载由mount触发。
+
 #### 阅读代码
 [Linux中__init、__devinit等初始化宏](http://blog.csdn.net/yinwei520/article/details/6646933)
 
