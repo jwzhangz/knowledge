@@ -29,7 +29,8 @@ inode的成员分为两类：
 
 传统上文件描述符在内核中足以标识一个文件。由于多命名空间和容器的引入，多个文件的描述符可以具有相同值。数据结构struct file唯一表示一个文件。
 
-
+#### 阅读代码
+[Linux中__init、__devinit等初始化宏](http://blog.csdn.net/yinwei520/article/details/6646933)
 
 
 文件存储在硬盘中的状态。
