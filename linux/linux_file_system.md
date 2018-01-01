@@ -38,6 +38,7 @@ inode的成员分为两类：
 [Linux中__init、__devinit等初始化宏](http://blog.csdn.net/yinwei520/article/details/6646933)
  
 [Linux的 __setup解析 -- 命令行处理](http://blog.csdn.net/wh_19910525/article/details/42779943)
-
+ 
+dentry 是什么？
 
 文件存储在硬盘中的状态。
