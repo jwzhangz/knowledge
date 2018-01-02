@@ -41,4 +41,6 @@ inode的成员分为两类：
  
 dentry 是什么？
 
+init_mount_tree
+
 文件存储在硬盘中的状态。
