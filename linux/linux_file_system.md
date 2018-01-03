@@ -64,6 +64,8 @@ struct list_head d_subdirs;
 ```
 [Linux 的虚拟文件系统(强烈推荐)](http://blog.csdn.net/heikefangxian23/article/details/51579971)
 
+[[文件系统]文件系统学习笔记（七）----pathwalk(2)](https://www.cnblogs.com/zhiliao112/p/4067844.html)
+
 
 init_mount_tree
 
