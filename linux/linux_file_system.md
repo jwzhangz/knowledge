@@ -62,6 +62,8 @@ struct list_head d_child;
 自己的所有子目录
 struct list_head d_subdirs;
 ```
+[Linux 的虚拟文件系统(强烈推荐)](http://blog.csdn.net/heikefangxian23/article/details/51579971)
+
 
 init_mount_tree
 
