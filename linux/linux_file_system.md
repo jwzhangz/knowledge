@@ -41,6 +41,28 @@ inode的成员分为两类：
  
 dentry 是什么？
 
+```c
+struct hlist_bl_node d_hash;
+父目录的dentry
+struct dentry *d_parent; 
+
+该目录或文件?name
+struct qstr d_name;
+对应的inode
+struct inode *d_inode;
+
+dentry操作函数
+const struct dentry_operations *d_op;
+
+所在根节点的super block
+struct super_block *d_sb;
+
+parent的子目录
+struct list_head d_child;
+自己的所有子目录
+struct list_head d_subdirs;
+```
+
 init_mount_tree
 
 文件存储在硬盘中的状态。
