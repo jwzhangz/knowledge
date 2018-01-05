@@ -67,6 +67,13 @@ struct list_head d_subdirs;
 [[文件系统]文件系统学习笔记（七）----pathwalk(2)](https://www.cnblogs.com/zhiliao112/p/4067844.html)
 
 
+当用户输入”mount /dev/sdb /mnt/alan”命令后，Linux会解析/mnt/alan字符串，并且从Dentry Hash表中获取相关的dentry目录项，然后将该目录项标识成DCACHE_MOUNTED。一旦该dentry被标识成DCACHE_MOUNTED，也就意味着在访问路径上对其进行了屏蔽。
+ 
+在mount /dev/sdb设备上的ext3文件系统时，内核会创建一个该文件系统的superblock对象，并且从/dev/sdb设备上读取所有的superblock信息，初始化该内存对象。Linux内核维护了一个全局superblock对象链表。s_root是superblock对象所维护的dentry目录项，该目录项是该文件系统的根目录。即新mount的文件系统内容都需要通过该根目录进行访问。在mount的过程中，VFS会创建一个非常重要的vfsmount对象，该对象维护了文件系统mount的所有信息。Vfsmount对象通过HASH表进行维护，通过path地址计算HASH值，在这里vfsmount的HASH值通过“/mnt/alan”路径字符串进行计算得到。Vfsmount中的mnt_root指向superblock对象的s_root根目录项。因此，通过/mnt/alan地址可以检索VFSMOUNT Hash Table得到被mount的vfsmount对象，进而得到mnt_root根目录项。
+ 
+例如，/dev/sdb被mount之后，用户想要访问该设备上的一个文件ab.c，假设该文件的地址为：/mnt/alan/ab.c。在打开该文件的时候，首先需要进行path解析。在解析到/mnt/alan的时候，得到/mnt/alan的dentry目录项，并且发现该目录项已经被标识为DCACHE_MOUNTED。之后，会采用/mnt/alan计算HASH值去检索VFSMOUNT Hash Table，得到对应的vfsmount对象，然后采用vfsmount指向的mnt_root目录项替代/mnt/alan原来的dentry，从而实现了dentry和inode的重定向。在新的dentry的基础上，解析程序继续执行，最终得到表示ab.c文件的inode对象。
+
+
 init_mount_tree
 
 文件存储在硬盘中的状态。
