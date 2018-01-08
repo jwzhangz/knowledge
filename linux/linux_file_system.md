@@ -74,6 +74,9 @@ struct list_head d_subdirs;
 例如，/dev/sdb被mount之后，用户想要访问该设备上的一个文件ab.c，假设该文件的地址为：/mnt/alan/ab.c。在打开该文件的时候，首先需要进行path解析。在解析到/mnt/alan的时候，得到/mnt/alan的dentry目录项，并且发现该目录项已经被标识为DCACHE_MOUNTED。之后，会采用/mnt/alan计算HASH值去检索VFSMOUNT Hash Table，得到对应的vfsmount对象，然后采用vfsmount指向的mnt_root目录项替代/mnt/alan原来的dentry，从而实现了dentry和inode的重定向。在新的dentry的基础上，解析程序继续执行，最终得到表示ab.c文件的inode对象。
 
 
+The dentry sequence count protects us from concurrent renames, and thus protects parent and name fields.
+   
+   
 init_mount_tree
 
 文件存储在硬盘中的状态。
