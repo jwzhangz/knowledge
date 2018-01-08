@@ -80,6 +80,7 @@ The dentry sequence count protects us from concurrent renames, and thus protects
 
 文件有dentry吗？
 
+[Linux内存管理原理](https://www.cnblogs.com/zhaoyl/p/3695517.html)
 
 init_mount_tree
 
