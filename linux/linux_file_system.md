@@ -78,6 +78,9 @@ The dentry sequence count protects us from concurrent renames, and thus protects
    
 [dentry与inode、dentry_cache](http://blog.chinaunix.net/uid-30226-id-2441814.html)
 
+文件有dentry吗？
+
+
 init_mount_tree
 
 文件存储在硬盘中的状态。
