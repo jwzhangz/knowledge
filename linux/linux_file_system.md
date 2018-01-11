@@ -86,4 +86,13 @@ init_mount_tree
 
 /dev/sdb1 dentry是何时建立的？这个是设备，不同于文件。文件搜索可以委托给特定文件系统的inode回调处理。但是设备该由谁去读出，并创建dentry和inode？
 
+```c
+void __init bdev_cache_init(void)
+注册 .name		= "bdev", 文件系统
+
+bd_mnt = kern_mount(&bd_type);
+创建mount
+
+```
+
 文件存储在硬盘中的状态。
