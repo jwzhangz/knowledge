@@ -95,4 +95,6 @@ bd_mnt = kern_mount(&bd_type);
 
 ```
 
+[inotify的实现与fsnotify的设计  ](http://blog.163.com/jiaxing_wang/blog/static/18661420420121018415965/)  
+
 文件存储在硬盘中的状态。
