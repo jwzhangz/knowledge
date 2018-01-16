@@ -11,3 +11,8 @@ my %book = (
 my $book_ref = \%book;
 my %uref = %{$book_ref};
 ```
+
+### 直接执行命令
+```perl
+perl -e "print $aaa"
+```
