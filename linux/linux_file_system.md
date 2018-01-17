@@ -97,4 +97,7 @@ bd_mnt = kern_mount(&bd_type);
 
 [inotify的实现与fsnotify的设计  ](http://blog.163.com/jiaxing_wang/blog/static/18661420420121018415965/)  
 
+[深入理解Linux字符设备驱动](http://blog.csdn.net/yueqian_scut/article/details/50935554)  
+[根文件系统（rootfs）梳理](http://blog.csdn.net/armmfc/article/details/51314581)
+
 文件存储在硬盘中的状态。
