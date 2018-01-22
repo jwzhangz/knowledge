@@ -75,3 +75,30 @@ go func(matcher Matcher, feed *Feed) {
 	waitGroup.Done()
 }(matcher, feed)
 ```
+
+###### 接口
+```go
+type Matcher interface {
+	Search(feed *Feed, searchTerm string) ([]*Result, error)
+}
+```
+
+用户要实现这个接口，就需要实现接口中的所有的函数。
+
+```go
+type defaultMatcher struct{}
+
+func (m defaultMatcher) Search(feed *Feed, searchTerm string) ([]*Result, error) {
+	return nil, nil
+}
+```
+
+定义Search函数，并声明了类型为defaultMatcher的值为接收者。之后定义的defaultMatcher类型的值都可以引用Search方法。
+
+也可以声明接收者为指针类型：
+
+```go
+func (m *defaultMatcher) Search(feed *Feed, searchTerm string) ([]*Result, error) {
+	return nil, nil
+}
+```
