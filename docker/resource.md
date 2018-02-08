@@ -8,5 +8,7 @@
 [Docker源码分析（一）：Docker架构](http://www.infoq.com/cn/articles/docker-source-code-analysis-part1/)
 
 [从Docker零基础到懂一点实践教程（五）](http://blog.csdn.net/sch0120/article/details/53219263)  
+[理解Docker（2）：Docker 镜像](http://www.cnblogs.com/sammyliu/p/5878973.html)
+
 
 https://github.com/moby/moby
