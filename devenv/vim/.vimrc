@@ -14,4 +14,7 @@ set shiftwidth=4
 set expandtab
 
 set paste
+
+"自动对齐
+set autoindent
 ```
