@@ -29,6 +29,43 @@ git revert commit-id (撤销指定的版本，撤销也会作为一次提交进�
 git revert是提交一个新的版本，将需要revert的版本的内容再反向修改回去，版本会递增，不影响之前提交的内容。
 ```
 
+合并commit
+```
+git log 查看有几个commit
+git rebase -i HEAD~2
+出现编辑窗口，把后面的pick 改为 s, :wq 保存
+出现编辑窗口，保留一条字符串。
+同步到远程分支 git push -f
+```
+
+保存用户名密码
+```
+git config --global credential.helper store
+```
+
+撤销操作
+```
+A- =  untracked 未跟踪
+A  =  tracked 已跟踪未修改
+A+ =  modified - 已修改未暂存
+B  =  staged - 已暂存未提交
+C  =  committed - 已提交未PUSH
+
+
+A- -> B :  git add <FILE>
+B  -> A- :  git rm --cached <FILE>
+B  -> 删除不保留文件 :  git rm -f <FILE>
+A  -> A- :  git rm --cached <FILE>
+A  -> A+ : 修改文件
+A+ -> A :  git checkout -- <FILE>
+A+ -> B :  git add <FILE>
+B  -> A+ :  git reset HEAD <FILE>
+B  -> C :  git commit
+C  -> B :  git reset --soft HEAD^
+修改最后一次提交: git commit --amend
+
+```
+
 
 [使用git pull文件时和本地文件冲突怎么办？](http://www.01happy.com/git-resolve-conflicts/)  
 
