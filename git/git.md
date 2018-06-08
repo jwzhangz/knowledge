@@ -31,3 +31,33 @@ git revert是提交一个新的版本，将需要revert的版本的内容再反�
 
 
 [使用git pull文件时和本地文件冲突怎么办？](http://www.01happy.com/git-resolve-conflicts/)  
+
+
+linux git自动补全
+```
+获取 git-completion.bash
+git源码 
+https://github.com/git/git
+也可以
+curl https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash -o ~/.git-completion.bash 
+
+复制 git-completion.bash 到用户目录
+cp git/contrib/completion/git-completion.bash ~/.git-completion.bash
+
+修改 .bashrc，添加
+source ~/.git-completion.bash
+
+复制 git-prompt.sh
+cp git/contrib/completion/git-prompt.sh ~/.git-prompt.sh
+
+修改 .bashrc，添加
+source ~/.git-prompt.sh
+
+.bashrc 中添加
+export GIT_PS1_SHOWDIRTYSTATE=1
+export GIT_PS1_SHOWSTASHSTATE=1
+export GIT_PS1_SHOWUNTRACKEDFILES=1
+export GIT_PS1_SHOWUPSTREAM="verbose git svn"
+PS1='\[\033[1;32m\]\u@\h \[\033[1;34m\]\W\[\033[1;31m\]$(__git_ps1 " (%s)")\[\033[1;35m\] $ \[\033[0m\]'
+
+```
