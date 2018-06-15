@@ -34,3 +34,5 @@
 什么是 rootfs？  
 [rootfs](http://blog.csdn.net/liuqingsongmsdn2014/article/details/54631007)  
 [linux文件系统初始化过程(2)---挂载rootfs文件系统](http://blog.csdn.net/luomoweilan/article/details/17894473)
+
+[RednaxelaFX写的文章/回答的导航帖](https://www.cnblogs.com/WCFGROUP/p/6511485.html)
