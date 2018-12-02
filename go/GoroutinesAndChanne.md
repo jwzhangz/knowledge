@@ -49,7 +49,7 @@ x = <- ch
 关闭 channel
 ```go
 close(ch)
-go
+```
 
 向一个已经关闭的 channel 发送数据将导致panic异常。
 
